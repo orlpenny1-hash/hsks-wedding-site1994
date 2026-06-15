@@ -1,0 +1,904 @@
+/* ============================================================
+   CSS Custom Properties
+   ============================================================ */
+:root {
+  --color-bg:          #090908;
+  --color-bg-2:        #101010;
+  --color-gold:        #c9a96e;
+  --color-gold-light:  #e2c99a;
+  --color-text:        #e8e0d0;
+  --color-text-muted:  rgba(232, 224, 208, 0.55);
+  --font-serif: 'Cormorant Garamond', Georgia, serif;
+  --font-sans:  'Lato', sans-serif;
+  --ease-out: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* ============================================================
+   Reset & Base
+   ============================================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-weight: 300;
+  line-height: 1.8;
+  overflow-x: hidden;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+button {
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: 0;
+}
+
+/* Film grain overlay */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9000;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 300px 300px;
+}
+
+/* ============================================================
+   Typography
+   ============================================================ */
+h1, h2, h3 {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  letter-spacing: 0.12em;
+  line-height: 1.1;
+}
+
+/* ============================================================
+   Layout
+   ============================================================ */
+.section {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.container {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ============================================================
+   Scroll animations
+   ============================================================ */
+.fade-in {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out);
+}
+
+.fade-in.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-text {
+  opacity: 0;
+  transform: translateY(32px);
+  animation: revealText 1s var(--ease-out) forwards;
+}
+
+.reveal-text:nth-child(1) { animation-delay: 0.4s; }
+.reveal-text:nth-child(2) { animation-delay: 0.9s; }
+.reveal-text:nth-child(3) { animation-delay: 1.3s; }
+.reveal-text:nth-child(4) { animation-delay: 1.7s; }
+
+@keyframes revealText {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
+   1. Hero / Opening
+   ============================================================ */
+.section--hero {
+  justify-content: center;
+  text-align: center;
+}
+
+.hero__bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center top;
+  transform: scale(1.06);
+  transition: transform 9s ease;
+  will-change: transform;
+}
+
+.section--hero.is-active .hero__bg {
+  transform: scale(1);
+}
+
+.hero__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(9, 9, 8, 0.25) 0%,
+    rgba(9, 9, 8, 0.45) 50%,
+    rgba(9, 9, 8, 0.85) 100%
+  );
+}
+
+.hero__content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  padding: 0 24px;
+}
+
+.hero__date {
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  letter-spacing: 0.5em;
+  color: var(--color-gold);
+  text-transform: uppercase;
+}
+
+.hero__names {
+  font-size: clamp(2.4rem, 10vw, 6.5rem);
+  color: #fff;
+  letter-spacing: 0.08em;
+}
+
+.hero__names .amp {
+  color: var(--color-gold);
+  font-style: italic;
+  margin: 0 0.15em;
+}
+
+.hero__subtitle {
+  font-family: var(--font-serif);
+  font-size: clamp(0.8rem, 2.5vw, 1.1rem);
+  letter-spacing: 0.55em;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  font-style: italic;
+}
+
+.hero__cta {
+  margin-top: 12px;
+  background: transparent;
+  border: 1px solid var(--color-gold);
+  color: var(--color-gold);
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  letter-spacing: 0.45em;
+  padding: 16px 44px;
+  cursor: pointer;
+  transition: background 0.4s, color 0.4s;
+  text-transform: uppercase;
+  min-height: 52px;
+}
+
+.hero__cta:hover,
+.hero__cta:focus-visible {
+  background: var(--color-gold);
+  color: var(--color-bg);
+  outline: none;
+}
+
+.scroll-indicator {
+  position: absolute;
+  bottom: 36px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+.scroll-indicator span {
+  display: block;
+  width: 1px;
+  height: 56px;
+  background: linear-gradient(to bottom, var(--color-gold), transparent);
+  animation: scrollLine 2.2s ease infinite;
+}
+
+@keyframes scrollLine {
+  0%   { opacity: 0; transform: scaleY(0); transform-origin: top; }
+  50%  { opacity: 1; transform: scaleY(1); }
+  100% { opacity: 0; transform: scaleY(0); transform-origin: bottom; }
+}
+
+/* ============================================================
+   2 & 3. Profile Sections
+   ============================================================ */
+.section--profile {
+  padding: 96px 0;
+  min-height: 100svh;
+}
+
+/* 単一背景画像（Bride など） */
+.profile__bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: brightness(0.35) saturate(0.6);
+}
+
+/* ---- Masonry 背景（Groom） ---- */
+.masonry-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  filter: brightness(0.32) saturate(0.6);
+}
+
+.masonry-col {
+  position: absolute;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  will-change: transform;
+}
+
+.masonry-col img {
+  display: block;
+  width: 100%;
+  flex-shrink: 0;
+  object-fit: cover;
+  aspect-ratio: 3 / 4; /* 高さを固定して JS でのハーフ計算を正確にする */
+}
+
+.profile__overlay {
+  position: absolute;
+  inset: 0;
+}
+
+.section--groom .profile__overlay {
+  background: linear-gradient(
+    135deg,
+    rgba(9, 9, 8, 0.88) 0%,
+    rgba(9, 9, 8, 0.30) 60%,
+    rgba(9, 9, 8, 0.60) 100%
+  );
+}
+
+.section--bride .profile__overlay {
+  background: linear-gradient(
+    -135deg,
+    rgba(9, 9, 8, 0.88) 0%,
+    rgba(9, 9, 8, 0.30) 60%,
+    rgba(9, 9, 8, 0.60) 100%
+  );
+}
+
+/* ============================================================
+   GROOM / BRIDE 境界ライン
+   ============================================================ */
+.profiles-divider {
+  position: relative;
+  z-index: 5;
+  background: var(--color-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  padding: 0 40px;
+  height: 68px;
+  overflow: hidden;
+}
+
+.profiles-divider::before,
+.profiles-divider::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(201, 169, 110, 0.15) 20%,
+    rgba(201, 169, 110, 0.15) 80%,
+    transparent 100%
+  );
+}
+
+.profiles-divider::before { top: 0; }
+.profiles-divider::after  { bottom: 0; }
+
+.profiles-divider__line {
+  flex: 1;
+  max-width: 220px;
+  height: 1px;
+}
+
+.profiles-divider__line:first-child {
+  background: linear-gradient(to right, transparent 0%, var(--color-gold) 100%);
+}
+
+.profiles-divider__line:last-child {
+  background: linear-gradient(to left, transparent 0%, var(--color-gold) 100%);
+}
+
+.profiles-divider__text {
+  font-family: var(--font-sans);
+  font-size: 0.6rem;
+  letter-spacing: 0.6em;
+  color: var(--color-gold);
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+
+.profile__inner {
+  position: relative;
+  z-index: 2;
+  max-width: 520px;
+  padding: 60px 0;
+}
+
+.profile__inner--right {
+  margin-left: auto;
+}
+
+.profile__label {
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  letter-spacing: 0.55em;
+  color: var(--color-gold);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+.profile__name {
+  font-size: clamp(2.8rem, 9vw, 5.5rem);
+  color: #fff;
+  letter-spacing: 0.1em;
+  margin-bottom: 28px;
+}
+
+.profile__divider {
+  width: 56px;
+  height: 1px;
+  background: var(--color-gold);
+  margin-bottom: 36px;
+}
+
+.profile__inner--right .profile__divider {
+  margin-left: auto;
+}
+
+.profile__list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 40px;
+}
+
+.profile__item {
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  gap: 16px;
+  font-size: 0.88rem;
+  align-items: baseline;
+}
+
+.profile__inner--right .profile__item {
+  direction: rtl;
+}
+
+.profile__inner--right .profile__item dt,
+.profile__inner--right .profile__item dd {
+  direction: ltr;
+  text-align: right;
+}
+
+.profile__item dt {
+  color: var(--color-gold);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  padding-top: 1px;
+}
+
+.profile__item dd {
+  color: var(--color-text);
+  line-height: 1.65;
+}
+
+.profile__quote {
+  margin-top: 8px;
+  padding-left: 20px;
+  border-left: 2px solid var(--color-gold);
+}
+
+.profile__inner--right .profile__quote {
+  padding-left: 0;
+  padding-right: 20px;
+  border-left: none;
+  border-right: 2px solid var(--color-gold);
+  text-align: right;
+}
+
+.profile__quote p {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1.1rem;
+  color: var(--color-text);
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+
+.profile__quote cite {
+  font-size: 0.72rem;
+  letter-spacing: 0.15em;
+  color: var(--color-text-muted);
+}
+
+/* ============================================================
+   4. Couple Section
+   ============================================================ */
+.section--couple {
+  justify-content: center;
+  text-align: center;
+}
+
+.couple__bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+}
+
+.couple__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(9, 9, 8, 0.62);
+}
+
+.couple__content {
+  position: relative;
+  z-index: 2;
+  padding: 80px 0;
+}
+
+.couple__eyebrow {
+  font-size: 0.68rem;
+  letter-spacing: 0.55em;
+  color: var(--color-gold);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.couple__title {
+  font-size: clamp(2rem, 8vw, 5rem);
+  color: #fff;
+  letter-spacing: 0.1em;
+  margin-bottom: 32px;
+}
+
+.couple__divider {
+  width: 56px;
+  height: 1px;
+  background: var(--color-gold);
+  margin: 0 auto 48px;
+}
+
+.couple__commons {
+  display: flex;
+  justify-content: center;
+  gap: 48px;
+  flex-wrap: wrap;
+}
+
+.couple__common-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.couple__common-tag {
+  font-family: var(--font-sans);
+  font-size: 0.62rem;
+  letter-spacing: 0.45em;
+  color: var(--color-gold);
+  text-transform: uppercase;
+}
+
+.couple__common-item p {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  letter-spacing: 0.08em;
+  color: var(--color-text);
+}
+
+/* ============================================================
+   5. Guest Message
+   ============================================================ */
+.section--message {
+  background: var(--color-bg-2);
+  justify-content: center;
+  text-align: center;
+}
+
+.message__content {
+  position: relative;
+  z-index: 2;
+  padding: 80px 0;
+}
+
+.message__eyebrow {
+  font-size: 0.68rem;
+  letter-spacing: 0.55em;
+  color: var(--color-gold);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.message__title {
+  font-size: clamp(2.5rem, 8vw, 5rem);
+  color: #fff;
+  letter-spacing: 0.15em;
+  margin-bottom: 32px;
+}
+
+.message__divider {
+  width: 56px;
+  height: 1px;
+  background: var(--color-gold);
+  margin: 0 auto 44px;
+}
+
+.message__text {
+  font-size: clamp(0.88rem, 2.5vw, 1rem);
+  line-height: 2.4;
+  color: var(--color-text-muted);
+  max-width: 560px;
+  margin: 0 auto 40px;
+}
+
+.message__sign {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1.3rem;
+  color: var(--color-gold-light);
+  letter-spacing: 0.15em;
+}
+
+/* ============================================================
+   6. Secret Code Section
+   ============================================================ */
+.section--secret {
+  justify-content: center;
+  text-align: center;
+}
+
+.secret__bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: brightness(0.25) saturate(0.4);
+}
+
+.secret__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(9, 9, 8, 0.72);
+}
+
+.secret__content {
+  position: relative;
+  z-index: 2;
+  padding: 80px 0;
+  width: 100%;
+}
+
+.secret__eyebrow {
+  font-size: 0.68rem;
+  letter-spacing: 0.55em;
+  color: var(--color-gold);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.secret__title {
+  font-size: clamp(1.4rem, 5vw, 3rem);
+  color: #fff;
+  letter-spacing: 0.25em;
+  margin-bottom: 16px;
+}
+
+.secret__hint {
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted);
+  margin-bottom: 48px;
+}
+
+.secret__form {
+  display: flex;
+  max-width: 380px;
+  margin: 0 auto 16px;
+}
+
+.secret__input {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(201, 169, 110, 0.35);
+  border-right: none;
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  letter-spacing: 0.35em;
+  padding: 18px 20px;
+  outline: none;
+  text-transform: uppercase;
+  text-align: center;
+  -webkit-appearance: none;
+  transition: border-color 0.3s;
+  min-height: 56px;
+}
+
+.secret__input::placeholder {
+  color: rgba(232, 224, 208, 0.2);
+  letter-spacing: 0.35em;
+}
+
+.secret__input:focus {
+  border-color: var(--color-gold);
+}
+
+.secret__btn {
+  background: var(--color-gold);
+  border: 1px solid var(--color-gold);
+  color: var(--color-bg);
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  letter-spacing: 0.35em;
+  padding: 18px 24px;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-weight: 400;
+  transition: background 0.3s;
+  min-height: 56px;
+  white-space: nowrap;
+}
+
+.secret__btn:hover,
+.secret__btn:focus-visible {
+  background: var(--color-gold-light);
+  outline: none;
+}
+
+.secret__error {
+  color: #e07070;
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  min-height: 1.4em;
+  margin-top: 8px;
+}
+
+/* ============================================================
+   7. Guest Personal Page (Full-Screen Overlay)
+   ============================================================ */
+.guest-page {
+  position: fixed;
+  inset: 0;
+  background: var(--color-bg);
+  z-index: 5000;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  opacity: 1;
+  transition: opacity 0.4s ease;
+}
+
+.guest-page.hidden {
+  display: none;
+}
+
+.guest-page__header {
+  position: sticky;
+  top: 0;
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px 20px;
+  background: rgba(9, 9, 8, 0.92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 10;
+  border-bottom: 1px solid rgba(201, 169, 110, 0.1);
+}
+
+.guest-page__close {
+  background: transparent;
+  border: 1px solid rgba(201, 169, 110, 0.35);
+  color: var(--color-text-muted);
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  letter-spacing: 0.3em;
+  padding: 12px 22px;
+  cursor: pointer;
+  transition: border-color 0.3s, color 0.3s;
+  text-transform: uppercase;
+  min-height: 44px;
+}
+
+.guest-page__close:hover,
+.guest-page__close:focus-visible {
+  border-color: var(--color-gold);
+  color: var(--color-gold);
+  outline: none;
+}
+
+.guest-page__content {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 48px 24px 96px;
+  text-align: center;
+}
+
+.guest-page__eyebrow {
+  font-size: 0.68rem;
+  letter-spacing: 0.55em;
+  color: var(--color-gold);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.guest-page__name {
+  font-size: clamp(1.8rem, 6vw, 3.5rem);
+  color: #fff;
+  letter-spacing: 0.1em;
+  margin-bottom: 48px;
+}
+
+.guest-page__image-wrap {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto 48px;
+  border: 1px solid rgba(201, 169, 110, 0.18);
+  overflow: hidden;
+}
+
+.guest-page__image-wrap.is-hidden {
+  display: none;
+}
+
+.guest-page__image {
+  width: 100%;
+  display: block;
+}
+
+.guest-page__message {
+  font-family: var(--font-serif);
+  font-size: clamp(1rem, 3vw, 1.25rem);
+  line-height: 2.1;
+  color: var(--color-text);
+  white-space: pre-wrap;
+  margin-bottom: 48px;
+}
+
+.guest-page__sign {
+  border-top: 1px solid rgba(201, 169, 110, 0.18);
+  padding-top: 32px;
+}
+
+.guest-page__sign p {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1.1rem;
+  letter-spacing: 0.2em;
+  color: var(--color-gold-light);
+}
+
+/* ============================================================
+   Footer
+   ============================================================ */
+.footer {
+  background: var(--color-bg);
+  text-align: center;
+  padding: 36px 24px;
+  border-top: 1px solid rgba(201, 169, 110, 0.1);
+}
+
+.footer p {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 0.85rem;
+  letter-spacing: 0.2em;
+  color: var(--color-text-muted);
+}
+
+/* ============================================================
+   Responsive — Mobile First Priority
+   ============================================================ */
+  /* Profile: always left-aligned on mobile */
+  .profile__inner--right {
+    margin-left: 0;
+  }
+
+  .profile__inner--right .profile__divider {
+    margin-left: 0;
+    margin-right: auto;
+  }
+
+  .profile__inner--right .profile__item {
+    direction: ltr;
+  }
+
+  .profile__inner--right .profile__item dt,
+  .profile__inner--right .profile__item dd {
+    text-align: left;
+  }
+
+  .profile__inner--right .profile__quote {
+    border-left: 2px solid var(--color-gold);
+    border-right: none;
+    padding-left: 20px;
+    padding-right: 0;
+    text-align: left;
+  }
+
+  .profile__item {
+    grid-template-columns: 72px 1fr;
+    gap: 12px;
+  }
+
+  /* Secret form: stacked on mobile */
+  .secret__form {
+    flex-direction: column;
+    max-width: 280px;
+  }
+
+  .secret__input {
+    border-right: 1px solid rgba(201, 169, 110, 0.35);
+    border-bottom: none;
+  }
+
+  .secret__input:focus {
+    border-color: var(--color-gold);
+  }
+
+  .secret__btn {
+    min-height: 52px;
+  }
+
+  /* Couple section */
+  .couple__commons {
+    gap: 32px;
+  }
+}
+
+@media (max-width: 400px) {
+  .hero__names {
+    letter-spacing: 0.04em;
+  }
+}

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>SHODAI &amp; SAYAKA | Wedding</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Lato:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ========== 1. OPENING / HERO ========== -->
+  <section id="opening" class="section section--hero">
+    <div class="hero__bg" style="background-image: url('images/LINE_ALBUM_20260602%E5%96%84%E5%85%89%E5%AF%BA%E5%89%8D%E6%92%AE%E3%82%8A_260615_1.jpg')"></div>
+    <div class="hero__overlay"></div>
+    <div class="hero__content">
+      <p class="hero__date reveal-text">2026.09</p>
+      <h1 class="hero__names reveal-text">SHODAI <span class="amp">&amp;</span> SAYAKA</h1>
+      <p class="hero__subtitle reveal-text">Wedding Reception</p>
+      <button class="hero__cta reveal-text" onclick="scrollToNext()">Welcome</button>
+    </div>
+    <div class="scroll-indicator"><span></span></div>
+  </section>
+
+  <!-- ========== OPENING / PROFILE 境界 ========== -->
+  <div class="profiles-divider" aria-hidden="true">
+    <span class="profiles-divider__line"></span>
+    <span class="profiles-divider__text">PROFILE</span>
+    <span class="profiles-divider__line"></span>
+  </div>
+
+  <!-- ========== 2. GROOM PROFILE ========== -->
+  <section id="groom" class="section section--profile section--groom">
+    <div class="masonry-bg" id="groomMasonryBg" aria-hidden="true"></div>
+    <div class="profile__overlay"></div>
+    <div class="container">
+      <div class="profile__inner">
+        <p class="profile__label fade-in">Groom</p>
+        <h2 class="profile__name fade-in">SHODAI</h2>
+        <div class="profile__divider fade-in"></div>
+        <dl class="profile__list">
+          <div class="profile__item fade-in">
+            <dt>出身</dt><dd>長野県長野市</dd>
+          </div>
+          <div class="profile__item fade-in">
+            <dt>仕事</dt><dd>薬剤師</dd>
+          </div>
+          <div class="profile__item fade-in">
+            <dt>趣味</dt><dd>DIY</dd>
+          </div>
+          <div class="profile__item fade-in">
+            <dt>好きな映画</dt><dd>Marvel映画 / フォレスト・ガンプ</dd>
+          </div>
+          <div class="profile__item fade-in">
+            <dt>好きな食べ物</dt><dd>ハンバーガー</dd>
+          </div>
+          <div class="profile__item fade-in">
+            <dt>休日</dt><dd>インドア派</dd>
+          </div>
+          <div class="profile__item fade-in">
+            <dt>性格</dt><dd>好奇心旺盛</dd>
+          </div>
+        </dl>
+        <blockquote class="profile__quote fade-in">
+          <p>「気づくと寝ている」</p>
+          <cite>— SAYAKA より</cite>
+        </blockquote>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== GROOM / BRIDE 境界 ========== -->
+  <div class="profiles-divider" aria-hidden="true">
+    <span class="profiles-divider__line"></span>
+    <span class="profiles-divider__text">GROOM &amp; BRIDE</span>
+    <span class="profiles-divider__line"></span>
+  </div>
+
+  <!-- ========== 3. BRIDE PROFILE ========== -->
+  <section id="bride" class="section section--profile section--bride">
+    <div class="masonry-bg" id="brideMasonryBg" aria-hidden="true"></div>
+    <div class="profile__overlay"></div>
+    <div class="container">
+      <div class="profile__inner profile__inner--right">
+        <p class="profile__label fade-in">Bride</p>
+        <h2 class="profile__name fade-in">SAYAKA</h2>
+        <div class="profile__divider fade-in"></div>
+        <dl class="profile__list">
+          <div class="profile__item fade-in">
+            <dt>出身</dt><dd>新潟県見附市</dd>
+          </div>
+          <div class="profile__item fade-in">
+            <dt>仕事</dt><dd>市役所職員</dd>
+          </div>
+          <div class="profile__item fade-in">
+            <dt>趣味</dt><dd>旅行</dd>
+          </div>
+          <div class="profile__item fade-in">
+            <dt>好きな映画</dt><dd>フォレスト・ガンプ / ホームアローン<br>ハリー・ポッター / グリーンマイル</dd>
+          </div>
+          <div class="profile__item fade-in">
+            <dt>好きな食べ物</dt><dd>パスタ / ヨーグルト / 魚介類</dd>
+          </div>
+          <div class="profile__item fade-in">
+            <dt>休日</dt><dd>おいしいごはん屋さん探し</dd>
+          </div>
+          <div class="profile__item fade-in">
+            <dt>性格</dt><dd>マイペース</dd>
+          </div>
+        </dl>
+        <blockquote class="profile__quote fade-in">
+          <p>「おいしいものセンサーの感度は抜群」</p>
+          <cite>— SHODAI より</cite>
+        </blockquote>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 4. COUPLE SECTION ========== -->
+  <section id="couple" class="section section--couple">
+    <div class="couple__bg" style="background-image: url('images/LINE_ALBUM_20260602%E5%96%84%E5%85%89%E5%AF%BA%E5%89%8D%E6%92%AE%E3%82%8A_260615_2.jpg')"></div>
+    <div class="couple__overlay"></div>
+    <div class="container">
+      <div class="couple__content">
+        <p class="couple__eyebrow fade-in">Our Story</p>
+        <h2 class="couple__title fade-in">SHODAI &amp; SAYAKA</h2>
+        <div class="couple__divider fade-in"></div>
+        <div class="couple__commons fade-in">
+          <div class="couple__common-item">
+            <span class="couple__common-tag">MOVIE</span>
+            <p>フォレスト・ガンプ</p>
+          </div>
+          <div class="couple__common-item">
+            <span class="couple__common-tag">TRAVEL</span>
+            <p>旅行 / 食べ歩き</p>
+          </div>
+          <div class="couple__common-item">
+            <span class="couple__common-tag">ENJOY</span>
+            <p>映画鑑賞</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 5. GUEST MESSAGE ========== -->
+  <section id="message" class="section section--message">
+    <div class="container">
+      <div class="message__content">
+        <p class="message__eyebrow fade-in">To Our Guests</p>
+        <h2 class="message__title fade-in">Thank You</h2>
+        <div class="message__divider fade-in"></div>
+        <p class="message__text fade-in">
+          本日はお忙しい中、私たちの結婚披露宴に<br>
+          お越しいただき、誠にありがとうございます。<br><br>
+          皆様のご出席が、私たちにとって何よりの喜びです。<br>
+          どうぞ最後までゆっくりとお楽しみください。
+        </p>
+        <p class="message__sign fade-in">SHODAI &amp; SAYAKA</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 6. SECRET CODE ========== -->
+  <section id="secret" class="section section--secret">
+    <div class="secret__bg" style="background-image: url('images/LINE_ALBUM_2023113.4%E5%A4%A7%E9%98%AA%E6%97%85%E8%A1%8C_260615_1.jpg')"></div>
+    <div class="secret__overlay"></div>
+    <div class="container">
+      <div class="secret__content">
+        <p class="secret__eyebrow fade-in">Special Message</p>
+        <h2 class="secret__title fade-in">ENTER YOUR CODE</h2>
+        <p class="secret__hint fade-in">席札裏のコードを入力してください</p>
+        <div class="secret__form fade-in">
+          <input
+            type="text"
+            id="codeInput"
+            class="secret__input"
+            placeholder="CODE"
+            maxlength="20"
+            autocomplete="off"
+            autocapitalize="characters"
+            spellcheck="false"
+          >
+          <button class="secret__btn" onclick="submitCode()">OPEN</button>
+        </div>
+        <p class="secret__error" id="codeError" aria-live="polite"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 7. GUEST PERSONAL PAGE (overlay) ========== -->
+  <div id="guestPage" class="guest-page hidden" role="dialog" aria-modal="true" aria-label="ゲスト専用ページ">
+    <div class="guest-page__header">
+      <button class="guest-page__close" onclick="closeGuestPage()">CLOSE</button>
+    </div>
+    <div class="guest-page__content">
+      <p class="guest-page__eyebrow">Special Message for</p>
+      <h2 class="guest-page__name" id="guestName"></h2>
+      <div class="guest-page__image-wrap" id="guestImageWrap">
+        <img class="guest-page__image" id="guestImage" src="" alt="ゲスト専用画像">
+      </div>
+      <div class="guest-page__message" id="guestMessage"></div>
+      <div class="guest-page__sign">
+        <p>SHODAI &amp; SAYAKA</p>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>SHODAI &amp; SAYAKA &mdash; Wedding 2026</p>
+  </footer>
+
+  <script src="js/guests.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
