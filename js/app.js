@@ -271,6 +271,28 @@ function closeGuestPage() {
   document.getElementById('codeError').textContent = '';
 }
 
+// ---- Film Strip: 画面幅に応じてフレームを自動複製 ----
+(function initFilmStrips() {
+  const FRAME_W = 64;
+  const GAP     = 6;
+
+  document.querySelectorAll('.film-strip__track').forEach(track => {
+    const origFrames = Array.from(track.children);
+    if (!origFrames.length) return;
+
+    const setW = origFrames.length * (FRAME_W + GAP);
+
+    // 画面幅の3倍以上になるまで複製
+    const needed = Math.ceil(window.innerWidth * 3 / setW);
+    for (let i = 1; i < needed; i++) {
+      origFrames.forEach(f => track.appendChild(f.cloneNode(true)));
+    }
+
+    // アニメーション距離 = 元の1セット幅（px）
+    track.style.setProperty('--film-offset', `-${setW}px`);
+  });
+})();
+
 // ---- Enter キー対応 ----
 document.getElementById('codeInput').addEventListener('keydown', (e) => {
   if (e.key === 'Enter') submitCode();
