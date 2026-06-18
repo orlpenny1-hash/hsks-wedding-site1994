@@ -486,7 +486,7 @@ h1, h2, h3 {
 .couple__content {
   position: relative;
   z-index: 2;
-  padding: 80px 0;
+  padding: 40px 0 80px;
 }
 
 .couple__eyebrow {
@@ -498,10 +498,10 @@ h1, h2, h3 {
 }
 
 .couple__title {
-  font-size: clamp(2rem, 8vw, 5rem);
+  font-size: clamp(1.2rem, 5vw, 2.2rem);
   color: #fff;
   letter-spacing: 0.1em;
-  margin-bottom: 32px;
+  margin-bottom: 24px;
 }
 
 .couple__divider {
@@ -511,34 +511,239 @@ h1, h2, h3 {
   margin: 0 auto 48px;
 }
 
-.couple__commons {
-  display: flex;
-  justify-content: center;
-  gap: 48px;
-  flex-wrap: wrap;
+/* ---- Cover Flow Carousel ---- */
+.travel-gallery {
+  position: relative;
+  width: 100%;
+  height: 430px;
+  overflow: hidden;
+  margin: 8px 0 16px;
 }
 
-.couple__common-item {
+.carousel-stage {
+  position: absolute;
+  inset: 0;
+  perspective: 700px;
+  perspective-origin: 50% 45%;
+}
+
+.travel-card {
+  position: absolute;
+  width: 240px;
+  height: 320px;
+  top: 55px;
+  left: 50%;
+  margin-left: -120px;
+  overflow: hidden;
+  border: 1px solid rgba(201, 169, 110, 0.25);
+  backface-visibility: hidden;
+  transform-origin: center center;
+  transition: transform 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              filter   0.55s ease,
+              box-shadow 0.55s ease;
+  will-change: transform, filter;
+}
+
+.travel-card.is-active {
+  filter: brightness(1);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+  z-index: 5;
+}
+
+.travel-card:not(.is-active) {
+  filter: brightness(0.42);
+}
+
+.travel-card__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* 中央カードにタップヒント */
+.travel-card.is-active::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(201, 169, 110, 0.5);
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* ---- Travel Modal ---- */
+.travel-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 4500;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 10px;
+  justify-content: center;
+  padding: 24px;
 }
 
-.couple__common-tag {
+.travel-modal.hidden { display: none; }
+
+.travel-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(9, 9, 8, 0.55);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  cursor: pointer;
+}
+
+.travel-modal__card {
+  position: relative;
+  z-index: 1;
+  background: #141413;
+  border: 1px solid rgba(201, 169, 110, 0.2);
+  max-width: 420px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  transform: scale(0.88);
+  opacity: 0;
+  transition: transform 0.35s var(--ease-out), opacity 0.35s ease;
+}
+
+.travel-modal.is-open .travel-modal__card {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.travel-modal__close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(9, 9, 8, 0.7);
+  border: 1px solid rgba(201, 169, 110, 0.3);
+  color: var(--color-text-muted);
+  font-family: var(--font-sans);
+  font-size: 0.62rem;
+  letter-spacing: 0.3em;
+  padding: 8px 14px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: border-color 0.3s, color 0.3s;
+  z-index: 2;
+  min-height: 36px;
+}
+
+.travel-modal__close:hover {
+  border-color: var(--color-gold);
+  color: var(--color-gold);
+}
+
+.travel-modal__body {
+  padding: 16px 24px 24px;
+  text-align: center;
+}
+
+.travel-modal__eyebrow {
   font-family: var(--font-sans);
   font-size: 0.62rem;
   letter-spacing: 0.45em;
   color: var(--color-gold);
   text-transform: uppercase;
+  margin-bottom: 8px;
 }
 
-.couple__common-item p {
+.travel-modal__label {
   font-family: var(--font-serif);
-  font-size: 1rem;
+  font-size: clamp(1.4rem, 5vw, 2rem);
+  font-weight: 300;
+  color: #fff;
   letter-spacing: 0.08em;
-  color: var(--color-text);
+  margin-bottom: 4px;
 }
+
+.travel-modal__date {
+  font-family: var(--font-sans);
+  font-size: 0.65rem;
+  letter-spacing: 0.3em;
+  color: var(--color-gold);
+  margin-bottom: 16px;
+}
+
+.travel-modal__divider {
+  width: 40px;
+  height: 1px;
+  background: var(--color-gold);
+  margin: 0 auto 20px;
+  opacity: 0.5;
+}
+
+.travel-modal__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3px;
+}
+
+.travel-modal__grid img {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  display: block;
+}
+
+.travel-card__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(9,9,8,0.88) 0%, rgba(9,9,8,0.05) 55%, transparent 100%);
+}
+
+.travel-card__info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 14px 12px;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.travel-card.is-active .travel-card__info {
+  opacity: 1;
+}
+
+.travel-card__date {
+  font-family: var(--font-sans);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  color: var(--color-gold);
+  display: block;
+  margin-bottom: 3px;
+}
+
+.travel-card__label {
+  font-family: var(--font-serif);
+  font-size: 0.95rem;
+  letter-spacing: 0.1em;
+  color: #fff;
+  display: block;
+}
+
+/* カード下の反射 */
+.travel-card__reflection {
+  position: absolute;
+  bottom: -60px;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  background: inherit;
+  transform: scaleY(-1);
+  opacity: 0.18;
+  pointer-events: none;
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,0.5), transparent);
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0.5), transparent);
+  overflow: hidden;
+}
+
 
 /* ============================================================
    Film Strip (Couple Section)
@@ -604,6 +809,16 @@ h1, h2, h3 {
   animation-play-state: paused;
 }
 
+.film-hint {
+  text-align: center;
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  letter-spacing: 0.3em;
+  color: rgba(201, 169, 110, 0.75);
+  padding: 10px 0 4px;
+  text-transform: lowercase;
+}
+
 @keyframes filmScroll {
   from { transform: translateX(0); }
   to   { transform: translateX(var(--film-offset, -50%)); }
@@ -629,6 +844,7 @@ h1, h2, h3 {
   height: 100%;
   object-fit: cover;
   z-index: 1;
+  transition: transform 0.4s var(--ease-out);
 }
 
 .film-frame__img[src=""] {
@@ -958,6 +1174,150 @@ h1, h2, h3 {
 }
 
 /* ============================================================
+   Movie Modal
+   ============================================================ */
+.film-frame {
+  cursor: pointer;
+}
+
+.film-frame:hover .film-frame__img {
+  transform: scale(1.08);
+}
+
+.movie-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 4000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.movie-modal.hidden {
+  display: none;
+}
+
+.movie-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(9, 9, 8, 0.55);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(6px);
+  cursor: pointer;
+}
+
+.movie-modal__card {
+  position: relative;
+  z-index: 1;
+  background: transparent;
+  border: none;
+  max-width: 420px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  transform: scale(0.88);
+  opacity: 0;
+  transition: transform 0.35s var(--ease-out), opacity 0.35s ease;
+}
+
+.movie-modal.is-open .movie-modal__card {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.movie-modal__poster-wrap {
+  width: 75%;
+  max-width: 260px;
+  aspect-ratio: 2 / 3;
+  margin: 0 auto;
+  overflow: hidden;
+  background: transparent;
+}
+
+.movie-modal__poster {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.movie-modal__body {
+  padding: 28px 28px 32px;
+  text-align: center;
+}
+
+.movie-modal__eyebrow {
+  font-family: var(--font-sans);
+  font-size: 0.62rem;
+  letter-spacing: 0.45em;
+  color: var(--color-gold);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.movie-modal__title {
+  font-family: var(--font-serif);
+  font-size: clamp(1.4rem, 5vw, 2rem);
+  font-weight: 300;
+  color: #fff;
+  letter-spacing: 0.08em;
+  margin-bottom: 16px;
+}
+
+.movie-modal__divider {
+  width: 40px;
+  height: 1px;
+  background: var(--color-gold);
+  margin: 0 auto 20px;
+  opacity: 0.5;
+}
+
+.movie-modal__message {
+  font-family: var(--font-serif);
+  font-size: clamp(0.9rem, 2.5vw, 1.05rem);
+  line-height: 2;
+  color: var(--color-text);
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.movie-modal__sign {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 0.9rem;
+  letter-spacing: 0.2em;
+  color: var(--color-gold-light);
+  text-align: right;
+}
+
+.movie-modal__close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(9, 9, 8, 0.7);
+  border: 1px solid rgba(201, 169, 110, 0.3);
+  color: var(--color-text-muted);
+  font-family: var(--font-sans);
+  font-size: 0.62rem;
+  letter-spacing: 0.3em;
+  padding: 8px 14px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: border-color 0.3s, color 0.3s;
+  z-index: 2;
+  min-height: 36px;
+}
+
+.movie-modal__close:hover,
+.movie-modal__close:focus-visible {
+  border-color: var(--color-gold);
+  color: var(--color-gold);
+  outline: none;
+}
+
+/* ============================================================
    Responsive
    ============================================================ */
 @media (max-width: 640px) {
@@ -1013,8 +1373,15 @@ h1, h2, h3 {
   }
 
   /* Couple section */
-  .couple__commons {
-    gap: 32px;
+  .travel-gallery {
+    height: 370px;
+  }
+
+  .travel-card {
+    width: 170px;
+    height: 235px;
+    top: 50px;
+    margin-left: -85px;
   }
 
   /* Hero 背景位置 */

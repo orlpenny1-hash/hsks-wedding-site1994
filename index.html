@@ -48,10 +48,7 @@
             <dt>仕事</dt><dd>薬剤師</dd>
           </div>
           <div class="profile__item fade-in">
-            <dt>趣味</dt><dd>DIY</dd>
-          </div>
-          <div class="profile__item fade-in">
-            <dt>好きな映画</dt><dd>Marvel映画 / フォレスト・ガンプ</dd>
+            <dt>趣味</dt><dd>DIY / 映画鑑賞</dd>
           </div>
           <div class="profile__item fade-in">
             <dt>好きな食べ物</dt><dd>ハンバーガー</dd>
@@ -95,10 +92,7 @@
             <dt>仕事</dt><dd>市役所職員</dd>
           </div>
           <div class="profile__item fade-in">
-            <dt>趣味</dt><dd>旅行</dd>
-          </div>
-          <div class="profile__item fade-in">
-            <dt>好きな映画</dt><dd>フォレスト・ガンプ / ホームアローン<br>ハリー・ポッター / グリーンマイル</dd>
+            <dt>趣味</dt><dd>旅行 / 映画鑑賞</dd>
           </div>
           <div class="profile__item fade-in">
             <dt>好きな食べ物</dt><dd>パスタ / ヨーグルト / 魚介類</dd>
@@ -127,11 +121,6 @@
     <div class="film-strip-wrap">
       <div class="film-strip">
         <div class="film-strip__track">
-          <div class="film-frame"><img class="film-frame__img" src="" alt="フォレスト・ガンプ"><span class="film-frame__title">Forrest Gump</span></div>
-          <div class="film-frame"><img class="film-frame__img" src="" alt="ホームアローン"><span class="film-frame__title">Home Alone</span></div>
-          <div class="film-frame"><img class="film-frame__img" src="" alt="ハリー・ポッター"><span class="film-frame__title">Harry Potter</span></div>
-          <div class="film-frame"><img class="film-frame__img" src="" alt="グリーンマイル"><span class="film-frame__title">The Green Mile</span></div>
-          <div class="film-frame"><img class="film-frame__img" src="" alt="Marvel"><span class="film-frame__title">Marvel</span></div>
         </div>
       </div>
     </div>
@@ -142,20 +131,7 @@
         <p class="couple__eyebrow fade-in">Our Story</p>
         <h2 class="couple__title fade-in">SHODAI &amp; SAYAKA</h2>
         <div class="couple__divider fade-in"></div>
-        <div class="couple__commons fade-in">
-          <div class="couple__common-item">
-            <span class="couple__common-tag">MOVIE</span>
-            <p>フォレスト・ガンプ</p>
-          </div>
-          <div class="couple__common-item">
-            <span class="couple__common-tag">TRAVEL</span>
-            <p>旅行 / 食べ歩き</p>
-          </div>
-          <div class="couple__common-item">
-            <span class="couple__common-tag">ENJOY</span>
-            <p>映画鑑賞</p>
-          </div>
-        </div>
+        <div id="travelGallery" class="travel-gallery fade-in"></div>
       </div>
     </div>
 
@@ -163,14 +139,10 @@
     <div class="film-strip-wrap">
       <div class="film-strip">
         <div class="film-strip__track film-strip__track--reverse">
-          <div class="film-frame"><img class="film-frame__img" src="" alt="フォレスト・ガンプ"><span class="film-frame__title">Forrest Gump</span></div>
-          <div class="film-frame"><img class="film-frame__img" src="" alt="ホームアローン"><span class="film-frame__title">Home Alone</span></div>
-          <div class="film-frame"><img class="film-frame__img" src="" alt="ハリー・ポッター"><span class="film-frame__title">Harry Potter</span></div>
-          <div class="film-frame"><img class="film-frame__img" src="" alt="グリーンマイル"><span class="film-frame__title">The Green Mile</span></div>
-          <div class="film-frame"><img class="film-frame__img" src="" alt="Marvel"><span class="film-frame__title">Marvel</span></div>
         </div>
       </div>
     </div>
+    <p class="film-hint">tap the poster to see our movie picks</p>
   </section>
 
   <!-- ========== 5. GUEST MESSAGE ========== -->
@@ -256,6 +228,38 @@
   <footer class="footer">
     <p>SHODAI &amp; SAYAKA &mdash; Wedding 2026</p>
   </footer>
+
+  <!-- ========== TRAVEL MODAL (overlay) ========== -->
+  <div id="travelModal" class="travel-modal hidden" role="dialog" aria-modal="true">
+    <div class="travel-modal__backdrop" onclick="closeTravelModal()"></div>
+    <div class="travel-modal__card">
+      <button class="travel-modal__close" onclick="closeTravelModal()">CLOSE</button>
+      <div id="travelModalGrid" class="travel-modal__grid"></div>
+      <div class="travel-modal__body">
+        <p class="travel-modal__eyebrow">Our Journey</p>
+        <h3 id="travelModalLabel" class="travel-modal__label"></h3>
+        <p id="travelModalDate" class="travel-modal__date"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== MOVIE MODAL (overlay) ========== -->
+  <div id="movieModal" class="movie-modal hidden" role="dialog" aria-modal="true" aria-label="映画紹介">
+    <div class="movie-modal__backdrop" onclick="closeMovieModal()"></div>
+    <div class="movie-modal__card">
+      <button class="movie-modal__close" onclick="closeMovieModal()">CLOSE</button>
+      <div class="movie-modal__poster-wrap">
+        <img id="movieModalImg" class="movie-modal__poster" src="" alt="">
+      </div>
+      <div class="movie-modal__body">
+        <p class="movie-modal__eyebrow">Our Favorite Movie</p>
+        <h3 id="movieModalTitle" class="movie-modal__title"></h3>
+        <div class="movie-modal__divider"></div>
+        <p id="movieModalMessage" class="movie-modal__message"></p>
+        <p class="movie-modal__sign">— SHODAI &amp; SAYAKA</p>
+      </div>
+    </div>
+  </div>
 
   <script src="js/guests.js"></script>
   <script src="js/app.js"></script>

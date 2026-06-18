@@ -23,8 +23,9 @@ const GROOM_BG_IMAGES = [
   if (!container) return;
 
   const GAP      = 3;
-  const numCols  = window.innerWidth >= 900 ? 4 : window.innerWidth >= 640 ? 3 : 2;
-  const colW     = Math.floor((container.offsetWidth - GAP * (numCols - 1)) / numCols);
+  const cW       = container.offsetWidth;
+  const numCols  = cW >= 900 ? 4 : cW >= 640 ? 3 : 2;
+  const colW     = Math.floor((cW - GAP * (numCols - 1)) / numCols);
 
   // aspect-ratio: 3/4 なので imgH = colW × (4/3)
   // 1セット = GROOM_BG_IMAGES.length 枚 + (length-1) × GAP
@@ -118,8 +119,9 @@ const BRIDE_BG_IMAGES = [
   if (!container) return;
 
   const GAP     = 3;
-  const numCols = window.innerWidth >= 900 ? 4 : window.innerWidth >= 640 ? 3 : 2;
-  const colW    = Math.floor((container.offsetWidth - GAP * (numCols - 1)) / numCols);
+  const cW      = container.offsetWidth;
+  const numCols = cW >= 900 ? 4 : cW >= 640 ? 3 : 2;
+  const colW    = Math.floor((cW - GAP * (numCols - 1)) / numCols);
 
   const N     = BRIDE_BG_IMAGES.length;          // 11
   const imgH  = colW * (4 / 3);
@@ -271,6 +273,269 @@ function closeGuestPage() {
   document.getElementById('codeError').textContent = '';
 }
 
+// パスのセグメントごとにエンコード（フォルダ名含むパス対応）
+function travelPath(p) {
+  return 'images/travels/' + p.split('/').map(encodeURIComponent).join('/');
+}
+
+// ---- Travel Gallery ----
+const TRAVELS = [
+  {
+    cover:  '東北2022.5/LINE_ALBUM_202251-5_260618_1.jpg',
+    images: [
+      '東北2022.5/LINE_ALBUM_202251-5_260618_1.jpg',
+      '東北2022.5/LINE_ALBUM_202251-5_260618_2.jpg',
+      '東北2022.5/LINE_ALBUM_202251-5_260618_3.jpg',
+      '東北2022.5/LINE_ALBUM_202251-5_260618_4.jpg',
+    ],
+    label: '東北', date: '2022.05',
+  },
+  {
+    cover:  '岐阜2022.9/LINE_ALBUM_2022923-25岐阜_260618_1.jpg',
+    images: [
+      '岐阜2022.9/LINE_ALBUM_2022923-25岐阜_260618_1.jpg',
+      '岐阜2022.9/LINE_ALBUM_2022923-25岐阜_260618_2.jpg',
+      '岐阜2022.9/LINE_ALBUM_2022923-25岐阜_260618_3.jpg',
+      '岐阜2022.9/LINE_ALBUM_2022923-25岐阜_260618_4.jpg',
+    ],
+    label: '岐阜', date: '2022.09',
+  },
+  {
+    cover:  '鳥取・島根・兵庫2023.5/LINE_ALBUM_20230503-07_260618_2.jpg',
+    images: [
+      '鳥取・島根・兵庫2023.5/LINE_ALBUM_20230503-07_260618_2.jpg',
+      '鳥取・島根・兵庫2023.5/LINE_ALBUM_20230503-07_260618_3.jpg',
+      '鳥取・島根・兵庫2023.5/LINE_ALBUM_20230503-07_260618_4.jpg',
+      '鳥取・島根・兵庫2023.5/LINE_ALBUM_20230503-07_260618_5.jpg',
+    ],
+    label: '鳥取・島根・兵庫', date: '2023.05',
+  },
+  {
+    cover:  '大阪2023.11/LINE_ALBUM_2023113.4大阪旅行_260619_1.jpg',
+    images: [
+      '大阪2023.11/LINE_ALBUM_2023113.4大阪旅行_260619_1.jpg',
+      '大阪2023.11/LINE_ALBUM_2023113.4大阪旅行_260619_2.jpg',
+      '大阪2023.11/LINE_ALBUM_2023113.4大阪旅行_260619_3.jpg',
+      '大阪2023.11/LINE_ALBUM_2023113.4大阪旅行_260619_4.jpg',
+    ],
+    label: '大阪', date: '2023.11',
+  },
+  {
+    cover:  '静岡2024.5/LINE_ALBUM_202453-6_260619_1.jpg',
+    images: [
+      '静岡2024.5/LINE_ALBUM_202453-6_260619_1.jpg',
+      '静岡2024.5/LINE_ALBUM_202453-6_260619_2.jpg',
+      '静岡2024.5/LINE_ALBUM_202453-6_260619_3.jpg',
+      '静岡2024.5/LINE_ALBUM_202453-6_260619_4.jpg',
+    ],
+    label: '静岡', date: '2024.05',
+  },
+  {
+    cover:  '北海道2025.5/LINE_ALBUM_20250504-06北海道_260619_1.jpg',
+    images: [
+      '北海道2025.5/LINE_ALBUM_20250504-06北海道_260619_1.jpg',
+      '北海道2025.5/LINE_ALBUM_20250504-06北海道_260619_2.jpg',
+      '北海道2025.5/LINE_ALBUM_20250504-06北海道_260619_3.jpg',
+      '北海道2025.5/LINE_ALBUM_20250504-06北海道_260619_4.jpg',
+    ],
+    label: '北海道', date: '2025.05',
+  },
+];
+
+(function initCoverFlow() {
+  const gallery = document.getElementById('travelGallery');
+  if (!gallery) return;
+
+  const total  = TRAVELS.length;
+  let current  = 0;
+
+  // Cover Flow の各位置パラメータ
+  // offset: 0=center, ±1=隣, ±2=その外, それ以上は非表示
+  function getTransform(offset) {
+    if (offset === 0)
+      return 'translateX(0px) translateZ(80px) rotateY(0deg) scale(1.25)';
+    const sign  = offset > 0 ? 1 : -1;
+    const abs   = Math.abs(offset);
+    const tx    = sign * (130 + (abs - 1) * 70);
+    const tz    = -abs * 20;
+    const scale = abs === 1 ? 0.88 : 0.72;
+    return `translateX(${tx}px) translateZ(${tz}px) rotateY(${-sign * 68}deg) scale(${scale})`;
+  }
+
+  // stage（perspective コンテナ）
+  const stage = document.createElement('div');
+  stage.className = 'carousel-stage';
+
+  const cards = TRAVELS.map((t, i) => {
+    const card = document.createElement('div');
+    card.className = 'travel-card';
+    card.innerHTML =
+      `<img class="travel-card__img" src="${travelPath(t.cover)}" alt="${t.label}">` +
+      `<div class="travel-card__overlay"></div>` +
+      `<div class="travel-card__info">` +
+        `<span class="travel-card__date">${t.date}</span>` +
+        `<span class="travel-card__label">${t.label}</span>` +
+      `</div>`;
+
+    card.addEventListener('click', () => {
+      if (i === current) {
+        openTravelModal(t);       // 中央カード → モーダルを開く
+      } else {
+        current = i;              // 端のカード → 中央へ移動
+        update();
+      }
+    });
+
+    stage.appendChild(card);
+    return card;
+  });
+
+  gallery.appendChild(stage);
+
+
+  function update() {
+    cards.forEach((card, i) => {
+      // current を基準にした offset（ループ対応）
+      let offset = i - current;
+      if (offset >  total / 2) offset -= total;
+      if (offset < -total / 2) offset += total;
+
+      const visible = Math.abs(offset) <= 2;
+      card.style.visibility = visible ? 'visible' : 'hidden';
+      card.style.transform  = getTransform(offset);
+      card.style.zIndex     = 10 - Math.abs(offset);
+      card.classList.toggle('is-active', offset === 0);
+    });
+  }
+
+  // スワイプ対応
+  let touchStartX = 0;
+  gallery.addEventListener('touchstart', e => {
+    touchStartX = e.touches[0].clientX;
+  }, { passive: true });
+  gallery.addEventListener('touchend', e => {
+    const diff = touchStartX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 40) {
+      current = diff > 0
+        ? (current + 1) % total
+        : (current - 1 + total) % total;
+      update();
+    }
+  });
+
+  update();
+})();
+
+// ---- Film Strip: 映画画像をランダムに2トラックへ配置 ----
+const MOVIES = [
+  {
+    file: 'アイアンマン.jfif',
+    title: 'Iron Man',
+    message: 'マーベルにどっぷりハマるきっかけになった一本。\nトニー・スタークのかっこよさに二人そろってやられました。アベンジャーズ全作、一緒に観破りましたよ。',
+  },
+  {
+    file: 'キャプテンアメリカ.jfif',
+    title: 'Captain America',
+    message: '正直さと誠実さを貫くスティーブ・ロジャースが大好き。\nどんな時代でもブレない生き方。こんなふうでありたいと、二人で話した映画です。',
+  },
+  {
+    file: 'グリーンマイル.jfif',
+    title: 'The Green Mile',
+    message: '何度観ても、最後は必ず泣いてしまう名作。\n誰かを想うことの深さ、命の重さ。観るたびに大切なものを思い出させてくれます。',
+  },
+  {
+    file: 'スターウォーズ.jfif',
+    title: 'Star Wars',
+    message: '壮大な世界観とともに育ってきた作品。\nいつか子どもたちと並んでソファで観るのが夢のひとつです。',
+  },
+  {
+    file: 'ハリーポッター.jfif',
+    title: 'Harry Potter',
+    message: '社会人になってから二人でUSJのハリポタエリアへ。\n大人になっても魔法の世界に夢中になれる。そんなふたりでいたいと思っています。',
+  },
+  {
+    file: 'バックトゥザフューチャー.jfif',
+    title: 'Back to the Future',
+    message: '「タイムマシンがあったらどこへ行く？」\nそんな話をするのが好きな会話のひとつ。でも結局、今が一番だと思えます。',
+  },
+  {
+    file: 'フォレストガンプ.jfif',
+    title: 'Forrest Gump',
+    message: 'ふたりで最初に一緒に観た映画。\n"Life is like a box of chocolates." — この言葉みたいに、これからの日々も何が待っているか楽しみです。',
+  },
+  {
+    file: 'ホームアローン.jfif',
+    title: 'Home Alone',
+    message: 'クリスマスシーズンになると必ず観たくなる一本。\nあの頃の純粋な笑いが大好き。二人で毎年観ようと決めています。',
+  },
+  {
+    file: '幸せの隠れ場所.jfif',
+    title: 'The Blind Side',
+    message: '実話に基づいた、愛の物語。\n誰かのために真剣になれることの強さ、やさしさ。観終わった後、じんわりと温かくなれます。',
+  },
+];
+
+(function initFilmFrames() {
+  const tracks = document.querySelectorAll('.film-strip__track');
+  if (!tracks.length) return;
+
+  // Fisher-Yates シャッフル
+  const shuffled = [...MOVIES];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+
+  // 2トラックに分配（上: 前半, 下: 後半）
+  const mid = Math.ceil(shuffled.length / 2);
+  const lists = [shuffled.slice(0, mid), shuffled.slice(mid)];
+
+  tracks.forEach((track, i) => {
+    lists[i % lists.length].forEach((m, idx) => {
+      const frame = document.createElement('div');
+      frame.className = 'film-frame';
+      frame.dataset.movieIdx = MOVIES.indexOf(m);
+      frame.innerHTML =
+        `<img class="film-frame__img" src="images/movies/${encodeURIComponent(m.file)}" alt="${m.title}">` +
+        `<span class="film-frame__title">${m.title}</span>`;
+      track.appendChild(frame);
+    });
+  });
+
+  // cloneNode はリスナーをコピーしないので、親要素で委譲
+  document.querySelectorAll('.film-strip-wrap').forEach(wrap => {
+    wrap.addEventListener('click', (e) => {
+      const frame = e.target.closest('.film-frame');
+      if (!frame) return;
+      const idx = parseInt(frame.dataset.movieIdx, 10);
+      if (!isNaN(idx) && MOVIES[idx]) openMovieModal(MOVIES[idx]);
+    });
+  });
+})();
+
+// ---- Movie Modal 開閉 ----
+function openMovieModal(movie) {
+  const modal = document.getElementById('movieModal');
+  document.getElementById('movieModalImg').src    = 'images/movies/' + encodeURIComponent(movie.file);
+  document.getElementById('movieModalImg').alt    = movie.title;
+  document.getElementById('movieModalTitle').textContent   = movie.title;
+  document.getElementById('movieModalMessage').textContent = movie.message;
+
+  modal.classList.remove('hidden');
+  modal.scrollTop = 0;
+  requestAnimationFrame(() => modal.classList.add('is-open'));
+  document.body.style.overflow = 'hidden';
+}
+
+function closeMovieModal() {
+  const modal = document.getElementById('movieModal');
+  modal.classList.remove('is-open');
+  modal.addEventListener('transitionend', () => {
+    modal.classList.add('hidden');
+    document.body.style.overflow = '';
+  }, { once: true });
+}
+
 // ---- Film Strip: 画面幅に応じてフレームを自動複製 ----
 (function initFilmStrips() {
   const FRAME_W = 64;
@@ -298,9 +563,36 @@ document.getElementById('codeInput').addEventListener('keydown', (e) => {
   if (e.key === 'Enter') submitCode();
 });
 
-// ---- ESC キーでゲストページを閉じる ----
+// ---- Travel Modal 開閉 ----
+function openTravelModal(travel) {
+  document.getElementById('travelModalLabel').textContent = travel.label;
+  document.getElementById('travelModalDate').textContent  = travel.date;
+
+  const grid = document.getElementById('travelModalGrid');
+  grid.innerHTML = travel.images.slice(0, 4).map(f =>
+    `<img src="${travelPath(f)}" alt="${travel.label}">`
+  ).join('');
+
+  const modal = document.getElementById('travelModal');
+  modal.classList.remove('hidden');
+  modal.scrollTop = 0;
+  requestAnimationFrame(() => modal.classList.add('is-open'));
+  document.body.style.overflow = 'hidden';
+}
+
+function closeTravelModal() {
+  const modal = document.getElementById('travelModal');
+  modal.classList.remove('is-open');
+  modal.addEventListener('transitionend', () => {
+    modal.classList.add('hidden');
+    document.body.style.overflow = '';
+  }, { once: true });
+}
+
+// ---- ESC キーでオーバーレイを閉じる ----
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && !document.getElementById('guestPage').classList.contains('hidden')) {
-    closeGuestPage();
-  }
+  if (e.key !== 'Escape') return;
+  if (!document.getElementById('guestPage').classList.contains('hidden'))   closeGuestPage();
+  if (!document.getElementById('movieModal').classList.contains('hidden'))   closeMovieModal();
+  if (!document.getElementById('travelModal').classList.contains('hidden'))  closeTravelModal();
 });
