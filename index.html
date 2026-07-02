@@ -188,26 +188,57 @@
       <div class="secret__content">
         <p class="secret__eyebrow fade-in">Special Message</p>
         <h2 class="secret__title fade-in">ENTER YOUR CODE</h2>
-        <p class="secret__hint fade-in">席札裏のコードを入力してください</p>
+        <p class="secret__hint fade-in">席札の合言葉を入力してください</p>
         <div class="secret__form fade-in">
           <input
             type="text"
             id="codeInput"
             class="secret__input"
-            placeholder="CODE"
+            placeholder="あいことば"
             maxlength="20"
             autocomplete="off"
             autocapitalize="characters"
             spellcheck="false"
           >
-          <button class="secret__btn" onclick="submitCode()">OPEN</button>
+          <button class="secret__btn" onclick="submitPassphrase()">OPEN</button>
         </div>
         <p class="secret__error" id="codeError" aria-live="polite"></p>
       </div>
     </div>
   </section>
 
-  <!-- ========== 7. GUEST PERSONAL PAGE (overlay) ========== -->
+  <!-- ========== 7. GROUP PAGE (overlay) ========== -->
+  <div id="groupPage" class="group-page hidden" role="dialog" aria-modal="true" aria-label="グループページ">
+    <div class="group-page__header">
+      <button class="group-page__close" onclick="closeGroupPage()">CLOSE</button>
+    </div>
+    <div class="group-page__content">
+      <p class="group-page__eyebrow">Welcome</p>
+      <h2 class="group-page__name" id="groupName"></h2>
+      <div class="group-page__divider"></div>
+      <div class="group-page__photos" id="groupPhotos"></div>
+      <div class="group-page__message" id="groupMessage"></div>
+      <div class="group-page__separator"></div>
+      <p class="group-page__hint">席札の番号を入力してください</p>
+      <div class="group-page__form">
+        <input
+          type="text"
+          id="guestNumberInput"
+          class="group-page__input"
+          placeholder="0000"
+          maxlength="4"
+          pattern="[0-9]*"
+          inputmode="numeric"
+          autocomplete="off"
+          autocorrect="off"
+        >
+        <button class="group-page__btn" onclick="submitGuestNumber()">OPEN</button>
+      </div>
+      <p class="group-page__error" id="groupError" aria-live="polite"></p>
+    </div>
+  </div>
+
+  <!-- ========== 8. GUEST PERSONAL PAGE (overlay) ========== -->
   <div id="guestPage" class="guest-page hidden" role="dialog" aria-modal="true" aria-label="ゲスト専用ページ">
     <div class="guest-page__header">
       <button class="guest-page__close" onclick="closeGuestPage()">CLOSE</button>

@@ -213,33 +213,103 @@ function scrollToNext() {
   if (next) next.scrollIntoView({ behavior: 'smooth' });
 }
 
-// ---- コード入力 ----
-function submitCode() {
-  const input   = document.getElementById('codeInput');
-  const errorEl = document.getElementById('codeError');
-  const code    = input.value.trim().toUpperCase();
+// ---- 合言葉入力（ステップ1） ----
+let currentGroup = null;
 
-  if (!code) {
-    showError('コードを入力してください');
+function submitPassphrase() {
+  const input  = document.getElementById('codeInput');
+  const phrase = input.value.trim().toUpperCase();
+
+  if (!phrase) {
+    showCodeError('合言葉を入力してください');
     return;
   }
 
-  const guest = GUESTS[code];
-  if (!guest) {
-    showError('コードが正しくありません。席札をご確認ください。');
+  const entry = Object.values(GROUPS).find(g => g.passphrase.toUpperCase() === phrase);
+  if (!entry) {
+    showCodeError('合言葉が正しくありません。席札をご確認ください。');
     input.value = '';
     input.focus();
     return;
   }
 
-  errorEl.textContent = '';
+  document.getElementById('codeError').textContent = '';
+  input.value = '';
+  currentGroup = entry;
+  openGroupPage(entry);
+}
+
+function showCodeError(msg) {
+  const el = document.getElementById('codeError');
+  el.textContent = msg;
+  el.style.animation = 'none';
+  requestAnimationFrame(() => { el.style.animation = ''; });
+}
+
+// ---- グループページ開閉（ステップ2） ----
+function openGroupPage(group) {
+  document.getElementById('groupName').textContent = group.name;
+
+  const photosEl = document.getElementById('groupPhotos');
+  photosEl.innerHTML = '';
+  group.photos.forEach(src => {
+    const img = document.createElement('img');
+    img.src = src;
+    img.alt = group.name;
+    img.className = 'group-page__photo';
+    photosEl.appendChild(img);
+  });
+
+  const msgEl = document.getElementById('groupMessage');
+  msgEl.textContent = group.message;
+
+  document.getElementById('guestNumberInput').value = '';
+  document.getElementById('groupError').textContent = '';
+
+  const page = document.getElementById('groupPage');
+  page.classList.remove('hidden');
+  page.scrollTop = 0;
+  document.body.style.overflow = 'hidden';
+
+  setTimeout(() => document.getElementById('guestNumberInput').focus(), 300);
+}
+
+function closeGroupPage() {
+  document.getElementById('groupPage').classList.add('hidden');
+  document.body.style.overflow = '';
+  document.getElementById('codeInput').value = '';
+  document.getElementById('codeError').textContent = '';
+  currentGroup = null;
+}
+
+// ---- 番号入力（ステップ2 → ステップ3） ----
+function submitGuestNumber() {
+  const input = document.getElementById('guestNumberInput');
+  const num   = input.value.trim();
+
+  if (!num) {
+    showGroupError('番号を入力してください');
+    return;
+  }
+
+  if (!currentGroup) return;
+
+  const guest = currentGroup.guests[num];
+  if (!guest) {
+    showGroupError('番号が正しくありません。席札をご確認ください。');
+    input.value = '';
+    input.focus();
+    return;
+  }
+
+  document.getElementById('groupError').textContent = '';
+  closeGroupPage();
   openGuestPage(guest);
 }
 
-function showError(msg) {
-  const el = document.getElementById('codeError');
+function showGroupError(msg) {
+  const el = document.getElementById('groupError');
   el.textContent = msg;
-  // 少し揺らしてフィードバック
   el.style.animation = 'none';
   requestAnimationFrame(() => { el.style.animation = ''; });
 }
@@ -560,7 +630,10 @@ function closeMovieModal() {
 
 // ---- Enter キー対応 ----
 document.getElementById('codeInput').addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') submitCode();
+  if (e.key === 'Enter') submitPassphrase();
+});
+document.getElementById('guestNumberInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') submitGuestNumber();
 });
 
 // ---- Travel Modal 開閉 ----
@@ -593,6 +666,7 @@ function closeTravelModal() {
 document.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
   if (!document.getElementById('guestPage').classList.contains('hidden'))   closeGuestPage();
+  if (!document.getElementById('groupPage').classList.contains('hidden'))   closeGroupPage();
   if (!document.getElementById('movieModal').classList.contains('hidden'))   closeMovieModal();
   if (!document.getElementById('travelModal').classList.contains('hidden'))  closeTravelModal();
 });

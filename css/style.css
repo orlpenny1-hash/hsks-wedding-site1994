@@ -2,12 +2,12 @@
    CSS Custom Properties
    ============================================================ */
 :root {
-  --color-bg:          #090908;
-  --color-bg-2:        #101010;
+  --color-bg:          #faf6f0;
+  --color-bg-2:        #f0ebe0;
   --color-gold:        #c9a96e;
-  --color-gold-light:  #e2c99a;
-  --color-text:        #e8e0d0;
-  --color-text-muted:  rgba(232, 224, 208, 0.55);
+  --color-gold-light:  #a07840;
+  --color-text:        #2c2318;
+  --color-text-muted:  rgba(44, 35, 24, 0.55);
   --font-serif: 'Cormorant Garamond', Georgia, serif;
   --font-sans:  'Lato', sans-serif;
   --ease-out: cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -57,7 +57,8 @@ body::after {
   inset: 0;
   pointer-events: none;
   z-index: 9000;
-  opacity: 0.025;
+  opacity: 0.04;
+  mix-blend-mode: multiply;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
   background-size: 300px 300px;
 }
@@ -146,9 +147,9 @@ h1, h2, h3 {
   inset: 0;
   background: linear-gradient(
     180deg,
-    rgba(9, 9, 8, 0.25) 0%,
-    rgba(9, 9, 8, 0.45) 50%,
-    rgba(9, 9, 8, 0.85) 100%
+    rgba(9, 9, 8, 0.10) 0%,
+    rgba(9, 9, 8, 0.25) 50%,
+    rgba(9, 9, 8, 0.70) 100%
   );
 }
 
@@ -323,8 +324,8 @@ h1, h2, h3 {
   background: linear-gradient(
     to right,
     transparent 0%,
-    rgba(201, 169, 110, 0.15) 20%,
-    rgba(201, 169, 110, 0.15) 80%,
+    rgba(201, 169, 110, 0.3) 20%,
+    rgba(201, 169, 110, 0.3) 80%,
     transparent 100%
   );
 }
@@ -889,7 +890,7 @@ h1, h2, h3 {
 
 .message__title {
   font-size: clamp(2.5rem, 8vw, 5rem);
-  color: #fff;
+  color: var(--color-text);
   letter-spacing: 0.15em;
   margin-bottom: 32px;
 }
@@ -1043,7 +1044,194 @@ h1, h2, h3 {
 }
 
 /* ============================================================
-   7. Guest Personal Page (Full-Screen Overlay)
+   7. Group Page (Full-Screen Overlay)
+   ============================================================ */
+.group-page {
+  position: fixed;
+  inset: 0;
+  background: var(--color-bg);
+  z-index: 4800;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.group-page.hidden {
+  display: none;
+}
+
+.group-page__header {
+  position: sticky;
+  top: 0;
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px 20px;
+  background: rgba(250, 246, 240, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 10;
+  border-bottom: 1px solid rgba(201, 169, 110, 0.2);
+}
+
+.group-page__close {
+  background: transparent;
+  border: 1px solid rgba(201, 169, 110, 0.35);
+  color: var(--color-text-muted);
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  letter-spacing: 0.3em;
+  padding: 12px 22px;
+  cursor: pointer;
+  transition: border-color 0.3s, color 0.3s;
+  text-transform: uppercase;
+  min-height: 44px;
+}
+
+.group-page__close:hover,
+.group-page__close:focus-visible {
+  border-color: var(--color-gold);
+  color: var(--color-gold);
+  outline: none;
+}
+
+.group-page__content {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 48px 24px 96px;
+  text-align: center;
+}
+
+.group-page__eyebrow {
+  font-size: 0.68rem;
+  letter-spacing: 0.55em;
+  color: var(--color-gold);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+.group-page__name {
+  font-size: clamp(1.6rem, 5vw, 3rem);
+  color: var(--color-text);
+  letter-spacing: 0.1em;
+  margin-bottom: 28px;
+}
+
+.group-page__divider {
+  width: 56px;
+  height: 1px;
+  background: var(--color-gold);
+  margin: 0 auto 40px;
+}
+
+.group-page__photos {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  margin-bottom: 40px;
+}
+
+.group-page__photo {
+  flex: 1;
+  max-width: 320px;
+  height: 220px;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  border: 1px solid rgba(201, 169, 110, 0.15);
+}
+
+.group-page__message {
+  font-family: var(--font-serif);
+  font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+  line-height: 2.2;
+  color: var(--color-text);
+  white-space: pre-line;
+  margin-bottom: 48px;
+}
+
+.group-page__separator {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(201, 169, 110, 0.3) 30%,
+    rgba(201, 169, 110, 0.3) 70%,
+    transparent 100%
+  );
+  margin-bottom: 40px;
+}
+
+.group-page__hint {
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted);
+  margin-bottom: 24px;
+}
+
+.group-page__form {
+  display: flex;
+  max-width: 280px;
+  margin: 0 auto 16px;
+}
+
+.group-page__input {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(201, 169, 110, 0.5);
+  border-right: none;
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: 1.4rem;
+  letter-spacing: 0.5em;
+  padding: 18px 12px 18px 20px;
+  outline: none;
+  text-align: center;
+  -webkit-appearance: none;
+  transition: border-color 0.3s;
+  min-height: 56px;
+}
+
+.group-page__input::placeholder {
+  color: rgba(44, 35, 24, 0.25);
+  letter-spacing: 0.4em;
+}
+
+.group-page__input:focus {
+  border-color: var(--color-gold);
+}
+
+.group-page__btn {
+  background: var(--color-gold);
+  border: 1px solid var(--color-gold);
+  color: var(--color-bg);
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  letter-spacing: 0.35em;
+  padding: 18px 20px;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-weight: 400;
+  transition: background 0.3s;
+  min-height: 56px;
+  white-space: nowrap;
+}
+
+.group-page__btn:hover,
+.group-page__btn:focus-visible {
+  background: var(--color-gold-light);
+  outline: none;
+}
+
+.group-page__error {
+  color: #e07070;
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  min-height: 1.4em;
+  margin-top: 8px;
+}
+
+/* ============================================================
+   9. Guest Personal Page (Full-Screen Overlay)
    ============================================================ */
 .guest-page {
   position: fixed;
@@ -1066,11 +1254,11 @@ h1, h2, h3 {
   display: flex;
   justify-content: flex-end;
   padding: 16px 20px;
-  background: rgba(9, 9, 8, 0.92);
+  background: rgba(250, 246, 240, 0.95);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   z-index: 10;
-  border-bottom: 1px solid rgba(201, 169, 110, 0.1);
+  border-bottom: 1px solid rgba(201, 169, 110, 0.2);
 }
 
 .guest-page__close {
@@ -1111,7 +1299,7 @@ h1, h2, h3 {
 
 .guest-page__name {
   font-size: clamp(1.8rem, 6vw, 3.5rem);
-  color: #fff;
+  color: var(--color-text);
   letter-spacing: 0.1em;
   margin-bottom: 48px;
 }
@@ -1369,6 +1557,29 @@ h1, h2, h3 {
   }
 
   .secret__btn {
+    min-height: 52px;
+  }
+
+  /* Group page: モバイル調整 */
+  .group-page__photo {
+    height: 160px;
+  }
+
+  .group-page__form {
+    flex-direction: column;
+    max-width: 220px;
+  }
+
+  .group-page__input {
+    border-right: 1px solid rgba(201, 169, 110, 0.35);
+    border-bottom: none;
+  }
+
+  .group-page__input:focus {
+    border-color: var(--color-gold);
+  }
+
+  .group-page__btn {
     min-height: 52px;
   }
 

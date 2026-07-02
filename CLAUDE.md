@@ -10,10 +10,10 @@ Static wedding website for SHODAI & SAYAKA (2026.09.13). No build tools or packa
 
 ### ファイル構成
 
-- **`index.html`** — 全セクションを1ファイルに収録。順序: Hero → Groom Profile → Bride Profile → Couple (Our Story) → Guest Message → Secret Code → Guest Page (overlay) → Travel Modal (overlay) → Movie Modal (overlay)
+- **`index.html`** — 全セクションを1ファイルに収録。順序: Hero → Groom Profile → Bride Profile → Couple (Our Story) → Guest Message → Secret Code → Group Page (overlay) → Guest Page (overlay) → Travel Modal (overlay) → Movie Modal (overlay)
 - **`css/style.css`** — 全スタイル。セクションはコメントで明確に区切られており HTML の順序と対応している
-- **`js/guests.js`** — ゲストデータのみ。`GUESTS` オブジェクトをコード文字列をキーに定義
-- **`js/app.js`** — 全インタラクション。`guests.js` の `GUESTS` に依存。読み込み順は `guests.js → app.js`
+- **`js/guests.js`** — ゲストデータのみ。`GROUPS` オブジェクトを定義（後述）
+- **`js/app.js`** — 全インタラクション。`guests.js` の `GROUPS` に依存。読み込み順は `guests.js → app.js`
 
 ### app.js の主要モジュール（宣言順）
 
@@ -30,20 +30,44 @@ Static wedding website for SHODAI & SAYAKA (2026.09.13). No build tools or packa
 | `TRAVELS` | 旅行データ配列。`cover` / `images[]` / `label` / `date` を持つ |
 | `initCoverFlow()` | Cover Flow カルーセルを構築。スワイプ・カードタップでナビゲート |
 | `openTravelModal()` / `closeTravelModal()` | 旅行モーダルの開閉（`#travelModal`） |
-| `submitCode()` / `openGuestPage()` / `closeGuestPage()` | ゲストコード照合とゲストページ開閉 |
+| `currentGroup` | 現在選択中のグループを保持するモジュール変数 |
+| `submitPassphrase()` | 合言葉照合 → `openGroupPage()` 呼び出し（ステップ1） |
+| `openGroupPage()` / `closeGroupPage()` | グループLP overlayの開閉（`#groupPage`） |
+| `submitGuestNumber()` | 4桁番号照合 → `openGuestPage()` 呼び出し（ステップ2） |
+| `openGuestPage()` / `closeGuestPage()` | ゲスト個別ページの開閉（`#guestPage`） |
 
-## ゲストコードシステム
+## 2段階ゲスト認証システム
 
-席札のコードを入力するとゲスト専用ページが開く。コードは `.toUpperCase()` 後にルックアップされるので大文字小文字不問。
+席札の「合言葉」→「4桁番号」の2段階でゲスト専用ページを開く。
 
-`js/guests.js` に追加：
+**認証フロー:**
+```
+#secret セクション（合言葉入力）
+  ↓ GROUPS から passphrase.toUpperCase() で照合
+#groupPage overlay（グループLP: 写真・メッセージ・4桁入力）
+  ↓ currentGroup.guests[num] で照合
+#guestPage overlay（個別メッセージページ）
+```
+
+`js/guests.js` にグループを追加：
 ```js
-"GUESTCODE": {
-  name: "田中 次郎 様",
-  message: "メッセージ本文（\\n で改行）",
-  image: ""  // 画像パスを指定、不要なら空文字
+"GROUP_KEY": {
+  passphrase: "KOTOBA",        // 合言葉（大文字小文字不問）
+  name: "〇〇の皆様へ",
+  photos: [                    // 1〜2枚
+    "images/groomandbride/xxx.jpg",
+  ],
+  message: "グループ向けメッセージ（\\n で改行）",
+  guests: {
+    "0001": { name: "田中 太郎 様", message: "個別メッセージ", image: "" },
+    "0002": { name: "田中 花子 様", message: "個別メッセージ", image: "" },
+  }
 }
 ```
+
+- 合言葉は `toUpperCase()` で正規化してから照合
+- ゲストキーは4桁数字文字列（`"0001"`〜`"9999"`）
+- グループページの写真は合言葉入力後に初めて読み込まれる（初期ロードに影響しない）
 
 ## 映画フィルムシステム
 
@@ -75,12 +99,15 @@ Static wedding website for SHODAI & SAYAKA (2026.09.13). No build tools or packa
 | `images/BRIDEbackg/` | 新婦プロフィールのマソンリー背景（11枚、`BRIDE_BG_IMAGES` に列挙） |
 | `images/movies/` | 映画ポスター（`.jfif` 形式、`MOVIES[].file` で参照） |
 | `images/travels/<フォルダ名>/` | 旅行写真（`TRAVELS[].cover` / `.images[]` で参照） |
-| `images/groomandbride/` | Couple セクション背景（HTML inline style で直接参照） |
+| `images/groomandbride/` | Couple セクション背景・グループページ写真（HTML inline style または `GROUPS[].photos[]` で参照） |
 | `images/` (root) | Hero・Couple セクション背景（HTML inline style で直接参照） |
 
 ## CSS メモ
 
-- ダークテーマ: `--color-bg: #090908`、ゴールドアクセント: `--color-gold: #c9a96e`
+- クリーム/アイボリーテーマ: `--color-bg: #faf6f0`、ゴールドアクセント: `--color-gold: #c9a96e`
+- テキストはウォームダークブラウン: `--color-text: #2c2318`
+- 写真背景のあるセクション（Hero・プロフィール・Couple・Secret）は独自のダークオーバーレイを持つため本文テキストは白のまま
 - レスポンシブは `@media (max-width: 640px)` と `@media (max-width: 400px)` のみ（`style.css` 末尾）
 - マソンリー背景の明暗は `.masonry-bg { filter: brightness(...) }` で新郎新婦まとめて制御
 - Cover Flow カードのサイズ変更時は `width` / `height` / `margin-left`（= `-width/2`）/ ギャラリー `height` を合わせて調整する
+- z-index 順序: 映画モーダル(4000) → 旅行モーダル(4500) → グループページ(4800) → ゲストページ(5000)
