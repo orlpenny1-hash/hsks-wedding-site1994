@@ -250,18 +250,33 @@ function showCodeError(msg) {
 function openGroupPage(group) {
   document.getElementById('groupName').textContent = group.name;
 
+  const heroEl = document.getElementById('jhsHero');
   const photosEl = document.getElementById('groupPhotos');
-  photosEl.innerHTML = '';
-  group.photos.forEach(src => {
-    const img = document.createElement('img');
-    img.src = src;
-    img.alt = group.name;
-    img.className = 'group-page__photo';
-    photosEl.appendChild(img);
-  });
-
   const msgEl = document.getElementById('groupMessage');
-  msgEl.textContent = group.message;
+
+  if (group.customHero === 'jersey') {
+    document.getElementById('jhsHeroImage').src = group.heroImage;
+    document.getElementById('jhsHeroImage').alt = group.name;
+    document.getElementById('jhsHeroMessage').innerHTML = group.message.replace(/\n/g, '<br>');
+    heroEl.classList.remove('hidden');
+    photosEl.classList.add('hidden');
+    msgEl.classList.add('hidden');
+  } else {
+    heroEl.classList.add('hidden');
+    photosEl.classList.remove('hidden');
+    msgEl.classList.remove('hidden');
+
+    photosEl.innerHTML = '';
+    group.photos.forEach(src => {
+      const img = document.createElement('img');
+      img.src = src;
+      img.alt = group.name;
+      img.className = 'group-page__photo';
+      photosEl.appendChild(img);
+    });
+
+    msgEl.textContent = group.message;
+  }
 
   document.getElementById('guestNumberInput').value = '';
   document.getElementById('groupError').textContent = '';
@@ -271,7 +286,7 @@ function openGroupPage(group) {
   page.scrollTop = 0;
   document.body.style.overflow = 'hidden';
 
-  setTimeout(() => document.getElementById('guestNumberInput').focus(), 300);
+  setTimeout(() => document.getElementById('guestNumberInput').focus({ preventScroll: true }), 300);
 }
 
 function closeGroupPage() {

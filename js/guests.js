@@ -48,10 +48,10 @@ const GROUPS = {
   "GROUP_JHS": {
     passphrase: "RINGOバスケ",
     name: "豊中バスケ部のみんなへ！",
-    photos: [
-      // TODO: 写真追加予定（枚数未定）
-    ],
-    message: "", // TODO: メッセージ未定
+    customHero: "jersey",
+    heroImage: "images/groupLP/TYNJH/ユニ.png",
+    photos: [],
+    message: "中学でみんなと過ごした時間は\n本当に最高の思い出です！\nみんなに出会えて良かった！\n\n最近は体もなまって\nバスケはだいぶご無沙汰だけど\nまたこのメンツで集まってバスケしたり\n飲みに行ったりしましょう！",
     guests: {
       // TODO: 4人分のゲスト情報を追加予定
     }
