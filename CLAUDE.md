@@ -28,6 +28,7 @@ Static wedding website for SHODAI & SAYAKA (2026.09.13). No build tools or packa
 | `openMovieModal()` / `closeMovieModal()` | 映画モーダルの開閉（`#movieModal`） |
 | `travelPath(p)` | `images/travels/` ベースでパスセグメントごとに `encodeURIComponent` するヘルパー |
 | `TRAVELS` | 旅行データ配列。`cover` / `images[]` / `label` / `date` を持つ |
+| `BballAnimationController` / `initBballAnimation()` / `stopBballAnimation()` | 中学グループ専用の GBA風バスケアニメーション（`#bballStage`）。`customHero: 'jersey'` のグループページを開いたときだけ遅延生成・再生し、閉じたら停止する |
 | `initCoverFlow()` | Cover Flow カルーセルを構築。スワイプ・カードタップでナビゲート |
 | `openTravelModal()` / `closeTravelModal()` | 旅行モーダルの開閉（`#travelModal`） |
 | `currentGroup` | 現在選択中のグループを保持するモジュール変数 |
@@ -111,3 +112,4 @@ Static wedding website for SHODAI & SAYAKA (2026.09.13). No build tools or packa
 - マソンリー背景の明暗は `.masonry-bg { filter: brightness(...) }` で新郎新婦まとめて制御
 - Cover Flow カードのサイズ変更時は `width` / `height` / `margin-left`（= `-width/2`）/ ギャラリー `height` を合わせて調整する
 - z-index 順序: 映画モーダル(4000) → 旅行モーダル(4500) → グループページ(4800) → ゲストページ(5000)
+-.クロード各担当はユーザーが声を掛けたら返事する

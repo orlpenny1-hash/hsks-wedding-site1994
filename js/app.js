@@ -246,6 +246,410 @@ function showCodeError(msg) {
   requestAnimationFrame(() => { el.style.animation = ''; });
 }
 
+// ---- 中学グループ専用: バスケアニメーション（GBA風ループ） ----
+// キャラクター画像だけを BBALL_SPRITE_SOURCES で差し替えれば他のキャラクターでも再利用できる。
+const BBALL_SPRITE_SOURCES = {
+  idle: 'images/groupLP/TYNJH/sprites/idle_1.png',
+  dribble: [
+    'images/groupLP/TYNJH/sprites/db_1.png',
+    'images/groupLP/TYNJH/sprites/db_2.png',
+    'images/groupLP/TYNJH/sprites/db_3.png',
+    'images/groupLP/TYNJH/sprites/db_4.png',
+  ],
+  shoot: [
+    'images/groupLP/TYNJH/sprites/shoot_1.png',
+    'images/groupLP/TYNJH/sprites/shoot_2.png',
+    'images/groupLP/TYNJH/sprites/shoot_3.png',
+  ],
+  landing: [
+    'images/groupLP/TYNJH/sprites/landing_1.png',
+    'images/groupLP/TYNJH/sprites/landing_2.png',
+  ],
+  guts: 'images/groupLP/TYNJH/sprites/guts.png',
+  ball: 'images/groupLP/TYNJH/sprites/ball.png',
+  goal: [
+    'images/groupLP/TYNJH/sprites/goal_0.png',
+    'images/groupLP/TYNJH/sprites/goal_1.png',
+    'images/groupLP/TYNJH/sprites/goal_2.png',
+    'images/groupLP/TYNJH/sprites/goal_3.png',
+  ],
+};
+
+const BBALL_CONFIG = {
+  CHARACTER_SCALE: 1.36,
+  START_X_RATIO: 0.1,
+  SHOOT_X_RATIO: 0.5,
+  JUMP_HEIGHT: 27,
+  GROUND_BOTTOM: 14,
+  IDLE_BOB_AMPLITUDE: 2,
+  DRIBBLE_BOB: [0, 1, 3, 1],
+  BALL_DISPLAY_SIZE: 30,
+  BALL_ARC_HEIGHT: 76,
+  RELEASE_OFFSET_X_RATIO: 0.34,
+  RELEASE_OFFSET_Y_RATIO: 0.08,
+  GOAL_DISPLAY_SIZE: 121,
+  GOAL_X_RATIO: 0.82,
+  GOAL_TOP: 16,
+  GOAL_RIM_X_RATIO: 0.53,
+  GOAL_RIM_Y_RATIO: 0.58,
+  GOAL_SEQUENCE_THRESHOLDS: { approach: 0.85, rim: 0.92, through: 0.97 },
+  FRAME_DURATION: {
+    IDLE: 600,
+    DRIBBLE: 150,
+    DRIBBLE_LOOPS: 4,
+    SHOOT_PREP: 260,
+    SHOOT_JUMP: 240,
+    SHOOT_RELEASE: 200,
+    BALL_FLIGHT: 900,
+    LANDING_1: 220,
+    LANDING_2: 260,
+    GUTS: 800,
+  },
+};
+
+class BballSprite {
+  constructor(parentEl, className) {
+    this.el = document.createElement('div');
+    this.el.className = className;
+    parentEl.appendChild(this.el);
+    this.x = 0;
+    this.y = 0;
+    this.scaleX = 1;
+    this.scaleY = 1;
+    this._currentSrc = null;
+  }
+  setFrame(src) {
+    if (src === this._currentSrc) return;
+    this._currentSrc = src;
+    this.el.style.backgroundImage = `url("${src}")`;
+  }
+  setPosition(x, y) {
+    this.x = x;
+    this.y = y;
+    this._render();
+  }
+  setScale(sx, sy) {
+    this.scaleX = sx;
+    this.scaleY = sy === undefined ? sx : sy;
+    this._render();
+  }
+  setOpacity(v) {
+    this.el.style.opacity = String(v);
+  }
+  _render() {
+    this.el.style.transform =
+      `translate(${this.x.toFixed(1)}px, ${this.y.toFixed(1)}px) ` +
+      `scale(${this.scaleX}, ${this.scaleY})`;
+  }
+}
+
+class BballBall {
+  constructor(parentEl, displaySize) {
+    this.sprite = new BballSprite(parentEl, 'bball-sprite bball-ball');
+    this.sprite.el.style.width = '64px';
+    this.sprite.el.style.height = '64px';
+    const scale = displaySize / 64;
+    this.sprite.setScale(scale, scale);
+    this.sprite.setFrame(BBALL_SPRITE_SOURCES.ball);
+    this.sprite.setOpacity(0);
+    this.displaySize = displaySize;
+    this.active = false;
+    this.elapsed = 0;
+    this.duration = 0;
+    this.arcHeight = 0;
+    this.start = { x: 0, y: 0 };
+    this.end = { x: 0, y: 0 };
+  }
+  _placeAtCenter(cx, cy) {
+    this.sprite.setPosition(cx - this.displaySize / 2, cy - this.displaySize / 2);
+  }
+  startFlight(fromCenter, toCenter, durationMs, arcHeight) {
+    this.start = fromCenter;
+    this.end = toCenter;
+    this.duration = durationMs;
+    this.arcHeight = arcHeight;
+    this.elapsed = 0;
+    this.active = true;
+    this.sprite.setOpacity(1);
+    this._placeAtCenter(fromCenter.x, fromCenter.y);
+  }
+  hide() {
+    this.active = false;
+    this.sprite.setOpacity(0);
+  }
+  update(dtMs) {
+    if (!this.active) return null;
+    this.elapsed += dtMs;
+    const t = Math.min(Math.max(this.elapsed / this.duration, 0), 1);
+    const cx = this.start.x + (this.end.x - this.start.x) * t;
+    const cy = this.start.y + (this.end.y - this.start.y) * t - this.arcHeight * 4 * t * (1 - t);
+    this._placeAtCenter(cx, cy);
+    if (t >= 1) this.active = false;
+    return t;
+  }
+}
+
+class BballAnimationController {
+  constructor(stageEl, config, sources) {
+    this.stageEl = stageEl;
+    this.cfg = config;
+    this.sources = sources;
+    this.character = new BballSprite(stageEl, 'bball-sprite bball-character');
+    this.goal = new BballSprite(stageEl, 'bball-sprite bball-goal');
+    this.ball = new BballBall(stageEl, this.cfg.BALL_DISPLAY_SIZE);
+    const goalScale = this.cfg.GOAL_DISPLAY_SIZE / 64;
+    this.goal.setScale(goalScale, goalScale);
+    this.character.setScale(this.cfg.CHARACTER_SCALE, this.cfg.CHARACTER_SCALE);
+    this._buildPhases();
+    this._layout();
+    this._phaseIndex = 0;
+    this._phaseElapsed = 0;
+    this._lastTs = null;
+    this._raf = null;
+    this._onResizeBound = () => this._onResize();
+    window.addEventListener('resize', this._onResizeBound);
+    this.phases[0].enter.call(this);
+    this._loop = this._loop.bind(this);
+  }
+  start() {
+    if (this._raf) return;
+    this._lastTs = null;
+    this._raf = requestAnimationFrame(this._loop);
+  }
+  stop() {
+    if (this._raf) cancelAnimationFrame(this._raf);
+    this._raf = null;
+  }
+  destroy() {
+    this.stop();
+    window.removeEventListener('resize', this._onResizeBound);
+  }
+  _onResize() {
+    if (this._resizeQueued) return;
+    this._resizeQueued = true;
+    requestAnimationFrame(() => {
+      this._resizeQueued = false;
+      this._layout();
+    });
+  }
+  _layout() {
+    const w = this.stageEl.clientWidth;
+    const h = this.stageEl.clientHeight;
+    const cfg = this.cfg;
+    this.charW = 64 * cfg.CHARACTER_SCALE;
+    this.charH = 64 * cfg.CHARACTER_SCALE;
+    this.groundY = h - cfg.GROUND_BOTTOM;
+    this.startCenterX = w * cfg.START_X_RATIO;
+    this.shootCenterX = w * cfg.SHOOT_X_RATIO;
+    this.goalX = w * cfg.GOAL_X_RATIO - this.cfg.GOAL_DISPLAY_SIZE / 2;
+    this.goalY = cfg.GOAL_TOP;
+    this.goal.setPosition(this.goalX, this.goalY);
+    this.goalRimCenter = {
+      x: this.goalX + this.cfg.GOAL_DISPLAY_SIZE * cfg.GOAL_RIM_X_RATIO,
+      y: this.goalY + this.cfg.GOAL_DISPLAY_SIZE * cfg.GOAL_RIM_Y_RATIO,
+    };
+  }
+  _placeCharacter(centerX, jumpOffsetY, squashY) {
+    const sy = squashY === undefined ? 1 : squashY;
+    this.character.setScale(this.cfg.CHARACTER_SCALE, this.cfg.CHARACTER_SCALE * sy);
+    this.character.setPosition(centerX - 32, this.groundY - 64 + jumpOffsetY);
+  }
+  _updateGoalForFlight(t) {
+    const th = this.cfg.GOAL_SEQUENCE_THRESHOLDS;
+    const g = this.sources.goal;
+    if (t < th.approach) {
+      this.goal.setFrame(g[0]);
+      this.ball.sprite.setOpacity(1);
+      return;
+    }
+    this.ball.sprite.setOpacity(0);
+    if (t < th.rim) {
+      this.goal.setFrame(g[1]);
+    } else if (t < th.through) {
+      this.goal.setFrame(g[2]);
+    } else {
+      this.goal.setFrame(g[3]);
+    }
+  }
+  _buildPhases() {
+    const cfg = this.cfg;
+    const fd = cfg.FRAME_DURATION;
+    const src = this.sources;
+    const dribbleCycleMs = fd.DRIBBLE * src.dribble.length;
+    const dribbleMoveDuration = dribbleCycleMs * fd.DRIBBLE_LOOPS;
+    const easeInOutSine = (t) => -(Math.cos(Math.PI * t) - 1) / 2;
+    const easeOutQuad = (t) => 1 - (1 - t) * (1 - t);
+    const easeInQuad = (t) => t * t;
+    const lerp = (a, b, t) => a + (b - a) * t;
+
+    this.phases = [
+      {
+        name: 'idle',
+        duration: fd.IDLE,
+        enter: function () {
+          this.goal.setFrame(this.sources.goal[0]);
+          this.ball.hide();
+          this.character.setFrame(this.sources.idle);
+          this._placeCharacter(this.startCenterX, 0, 1);
+        },
+        update: function (p) {
+          const bob = Math.sin(p * Math.PI) * cfg.IDLE_BOB_AMPLITUDE;
+          this._placeCharacter(this.startCenterX, -bob, 1);
+        },
+      },
+      {
+        name: 'dribbleMove',
+        duration: dribbleMoveDuration,
+        enter: function () {
+          this.character.setFrame(this.sources.dribble[0]);
+        },
+        update: function (p, elapsed) {
+          const eased = easeInOutSine(p);
+          const centerX = lerp(this.startCenterX, this.shootCenterX, eased);
+          const frameIndex = Math.floor(elapsed / fd.DRIBBLE) % src.dribble.length;
+          this.character.setFrame(src.dribble[frameIndex]);
+          const bob = cfg.DRIBBLE_BOB[frameIndex] || 0;
+          this._placeCharacter(centerX, bob, 1);
+        },
+      },
+      {
+        name: 'shootPrep',
+        duration: fd.SHOOT_PREP,
+        enter: function () {
+          this.character.setFrame(this.sources.shoot[0]);
+        },
+        update: function (p) {
+          const squash = 1 - 0.07 * Math.sin(Math.PI * p);
+          this._placeCharacter(this.shootCenterX, 0, squash);
+        },
+      },
+      {
+        name: 'shootJump',
+        duration: fd.SHOOT_JUMP,
+        enter: function () {
+          this.character.setFrame(this.sources.shoot[1]);
+        },
+        update: function (p) {
+          const eased = easeOutQuad(p);
+          const jump = -cfg.JUMP_HEIGHT * eased;
+          const stretch = 1 + 0.03 * Math.sin(Math.PI * p);
+          this._placeCharacter(this.shootCenterX, jump, stretch);
+        },
+      },
+      {
+        name: 'shootRelease',
+        duration: fd.SHOOT_RELEASE,
+        enter: function () {
+          this.character.setFrame(this.sources.shoot[2]);
+          const releaseCenter = {
+            x: this.shootCenterX + this.charW * cfg.RELEASE_OFFSET_X_RATIO,
+            y: this.groundY - this.charH - cfg.JUMP_HEIGHT + this.charH * cfg.RELEASE_OFFSET_Y_RATIO,
+          };
+          const totalFlight = fd.SHOOT_RELEASE + fd.BALL_FLIGHT;
+          const visibleFlightDuration = totalFlight * cfg.GOAL_SEQUENCE_THRESHOLDS.approach;
+          this.ball.startFlight(releaseCenter, this.goalRimCenter, visibleFlightDuration, cfg.BALL_ARC_HEIGHT);
+        },
+        update: function (p, elapsed) {
+          const eased = easeInQuad(p);
+          const jump = -cfg.JUMP_HEIGHT * (1 - eased);
+          this._placeCharacter(this.shootCenterX, jump, 1);
+          const totalFlight = fd.SHOOT_RELEASE + fd.BALL_FLIGHT;
+          this._updateGoalForFlight(elapsed / totalFlight);
+        },
+      },
+      {
+        name: 'ballFlight',
+        duration: fd.BALL_FLIGHT,
+        enter: function () {
+          this.character.setFrame(this.sources.shoot[2]);
+        },
+        update: function (p, elapsed) {
+          this._placeCharacter(this.shootCenterX, 0, 1);
+          const totalFlight = fd.SHOOT_RELEASE + fd.BALL_FLIGHT;
+          this._updateGoalForFlight((fd.SHOOT_RELEASE + elapsed) / totalFlight);
+        },
+      },
+      {
+        name: 'landing1',
+        duration: fd.LANDING_1,
+        enter: function () {
+          this.character.setFrame(this.sources.landing[0]);
+        },
+        update: function (p) {
+          const squash = 1 - 0.1 * Math.sin(Math.PI * p);
+          this._placeCharacter(this.shootCenterX, 0, squash);
+        },
+      },
+      {
+        name: 'landing2',
+        duration: fd.LANDING_2,
+        enter: function () {
+          this.character.setFrame(this.sources.landing[1]);
+        },
+        update: function () {
+          this._placeCharacter(this.shootCenterX, 0, 1);
+        },
+      },
+      {
+        name: 'guts',
+        duration: fd.GUTS,
+        enter: function () {
+          this.character.setFrame(this.sources.guts);
+        },
+        update: function (p) {
+          const hop = -8 * Math.sin(Math.PI * p);
+          const stretch = 1 + 0.05 * Math.sin(Math.PI * p);
+          this._placeCharacter(this.shootCenterX, hop, stretch);
+        },
+      },
+    ];
+  }
+  _advancePhase(dt) {
+    let remaining = dt;
+    while (remaining > 0) {
+      const phase = this.phases[this._phaseIndex];
+      const remainingInPhase = phase.duration - this._phaseElapsed;
+      if (remaining < remainingInPhase) {
+        this._phaseElapsed += remaining;
+        phase.update.call(this, this._phaseElapsed / phase.duration, this._phaseElapsed);
+        remaining = 0;
+      } else {
+        this._phaseElapsed = phase.duration;
+        phase.update.call(this, 1, this._phaseElapsed);
+        remaining -= remainingInPhase;
+        this._phaseIndex = (this._phaseIndex + 1) % this.phases.length;
+        this._phaseElapsed = 0;
+        this.phases[this._phaseIndex].enter.call(this);
+      }
+    }
+  }
+  _loop(ts) {
+    if (this._lastTs === null) this._lastTs = ts;
+    let dt = ts - this._lastTs;
+    this._lastTs = ts;
+    if (dt > 100) dt = 100;
+    this._advancePhase(dt);
+    this.ball.update(dt);
+    this._raf = requestAnimationFrame(this._loop);
+  }
+}
+
+let bballController = null;
+
+// 中学グループのページを開いたときにだけ生成・開始する（初期ロードに影響しないよう遅延初期化）
+function initBballAnimation() {
+  const stage = document.getElementById('bballStage');
+  if (!stage) return;
+  if (!bballController) {
+    bballController = new BballAnimationController(stage, BBALL_CONFIG, BBALL_SPRITE_SOURCES);
+  }
+  bballController.start();
+}
+
+function stopBballAnimation() {
+  if (bballController) bballController.stop();
+}
+
 // ---- グループページ開閉（ステップ2） ----
 function openGroupPage(group) {
   document.getElementById('groupName').textContent = group.name;
@@ -262,6 +666,7 @@ function openGroupPage(group) {
     photosEl.classList.add('hidden');
     msgEl.classList.add('hidden');
   } else {
+    stopBballAnimation();
     heroEl.classList.add('hidden');
     photosEl.classList.remove('hidden');
     msgEl.classList.remove('hidden');
@@ -286,10 +691,13 @@ function openGroupPage(group) {
   page.scrollTop = 0;
   document.body.style.overflow = 'hidden';
 
+  if (group.customHero === 'jersey') initBballAnimation();
+
   setTimeout(() => document.getElementById('guestNumberInput').focus({ preventScroll: true }), 300);
 }
 
 function closeGroupPage() {
+  stopBballAnimation();
   document.getElementById('groupPage').classList.add('hidden');
   document.body.style.overflow = '';
   document.getElementById('codeInput').value = '';

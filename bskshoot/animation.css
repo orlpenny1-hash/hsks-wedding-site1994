@@ -1,0 +1,57 @@
+/*
+  GBA風バスケットボールアニメーション スタイル
+  ------------------------------------------------
+  ステージは幅100%・高さ可変(CSS変数で調整)、背景透明。
+  各スプライトは絶対配置し、位置は transform: translate() のみで動かす
+  (left/top を書き換えないことでレイアウト再計算を避け、スマホでも滑らかに動作させる)。
+*/
+
+:root {
+  /* ボールの放物線がしっかり見えるよう、縦方向に余裕を持たせた高さ */
+  --bball-stage-height: 260px;
+}
+
+.bball-stage {
+  position: relative;
+  width: 100%;
+  height: var(--bball-stage-height);
+  overflow: hidden;
+  background: transparent;
+  /* ピクセル絵なので拡大縮小時ににじませない */
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+  touch-action: pan-y;
+}
+
+.bball-sprite {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 64px;
+  height: 64px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  pointer-events: none;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
+.bball-goal {
+  z-index: 1;
+  transform-origin: 0 0; /* 左上を基準に配置(座標計算をスケールに依存させないため) */
+}
+
+.bball-character {
+  z-index: 2;
+  transform-origin: 50% 100%; /* 足元を基準にジャンプ・着地の伸縮を行う */
+}
+
+.bball-ball {
+  z-index: 3;
+  transform-origin: 0 0; /* 左上を基準に配置(座標計算をスケールに依存させないため) */
+}
