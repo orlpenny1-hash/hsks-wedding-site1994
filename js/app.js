@@ -650,13 +650,342 @@ function stopBballAnimation() {
   if (bballController) bballController.stop();
 }
 
+// ---- 高校グループ専用: 思い出フォトストーリー（散乱 → ギャラリー → 収束） ----
+function psPrefersReducedMotion() {
+  return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+}
+
+class PhotoStoryController {
+  constructor(rootEl) {
+    this.root = rootEl;
+    this.group = null;
+    this.tiles = [];
+    this.hasPlayed = false;
+    this.lightboxIndex = 0;
+    this.scatterTl = null;
+    this.endingTl = null;
+
+    this._bindStage1Click();
+    this._bindLightbox();
+  }
+
+  // group.photos を元にDOMを毎回作り直し、stage1から再生できる状態に戻す
+  render(group) {
+    this.reset();
+    this.group = group;
+
+    const heroImg = document.getElementById('psHeroImage');
+    heroImg.src = group.heroImage;
+    heroImg.alt = group.name || '';
+
+    const anchor = document.getElementById('psEndingAnchor');
+    anchor.src = group.heroImage;
+    anchor.alt = group.name || '';
+
+    document.getElementById('psEndingMessage').textContent = group.message || '';
+
+    const scatterLayer = document.getElementById('psScatterLayer');
+    const photos = group.photos || [];
+    this.tiles = photos.map((src, i) => {
+      const tile = document.createElement('div');
+      tile.className = 'photo-story__tile';
+      if (i % 4 === 0) tile.classList.add('photo-story__tile--featured');
+      const img = document.createElement('img');
+      img.className = 'photo-story__tile-img';
+      img.src = src;
+      img.alt = group.name || '';
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      tile.appendChild(img);
+      tile.addEventListener('click', () => this.openLightbox(i));
+      scatterLayer.appendChild(tile);
+      return tile;
+    });
+  }
+
+  reset() {
+    if (this.scatterTl) { this.scatterTl.kill(); this.scatterTl = null; }
+    if (this.endingTl) {
+      if (this.endingTl.scrollTrigger) this.endingTl.scrollTrigger.kill();
+      this.endingTl.kill();
+      this.endingTl = null;
+    }
+    if (window.gsap && this.tiles.length) gsap.killTweensOf(this.tiles);
+
+    document.getElementById('psScatterLayer').innerHTML = '';
+    const gallery = document.getElementById('psGallery');
+    gallery.classList.remove('is-active');
+    gallery.innerHTML = '';
+
+    const anchor = document.getElementById('psEndingAnchor');
+    anchor.style.opacity = '';
+    anchor.style.transform = '';
+    const message = document.getElementById('psEndingMessage');
+    message.classList.add('hidden');
+    message.style.opacity = '';
+    message.style.transform = '';
+
+    const promptWrap = document.querySelector('.photo-story__prompt-wrap');
+    promptWrap.style.opacity = '';
+    promptWrap.style.animation = '';
+    promptWrap.querySelectorAll('*').forEach((el) => { el.style.animation = ''; });
+
+    this.tiles = [];
+    this.hasPlayed = false;
+    this.closeLightbox();
+  }
+
+  // グループページを開いた直後、レイアウト確定後にScrollTriggerの計測を合わせる
+  start() {
+    if (window.gsap && window.ScrollTrigger) {
+      requestAnimationFrame(() => requestAnimationFrame(() => ScrollTrigger.refresh()));
+    }
+  }
+
+  // オーバーレイを閉じるときは実行中のアニメーションだけ止める（DOMの再構築はrender()側で行う）
+  stop() {
+    if (this.scatterTl) this.scatterTl.pause();
+    if (this.endingTl && this.endingTl.scrollTrigger) this.endingTl.scrollTrigger.disable();
+    this.closeLightbox();
+  }
+
+  _bindStage1Click() {
+    document.getElementById('psStage1').addEventListener('click', () => {
+      if (this.hasPlayed) return;
+      this.hasPlayed = true;
+      this._playScatter();
+    });
+  }
+
+  _playScatter() {
+    const promptWrap = document.querySelector('.photo-story__prompt-wrap');
+    // ps-breathe/ps-pulseのCSSキーフレームが動いたままだと、GSAPのopacityフェードを毎フレーム上書きしてしまうため、
+    // フェード開始前にCSSアニメーションそのものを止める。
+    promptWrap.style.animation = 'none';
+    promptWrap.querySelectorAll('*').forEach((el) => { el.style.animation = 'none'; });
+
+    if (!window.gsap || !this.tiles.length || psPrefersReducedMotion()) {
+      promptWrap.style.opacity = '0';
+      this._morphToGrid();
+      return;
+    }
+
+    const stage = document.getElementById('psStage1');
+    const w = stage.clientWidth, h = stage.clientHeight;
+    const tiles = this.tiles;
+    const GOLDEN_ANGLE = 137.5 * Math.PI / 180;
+
+    const targets = tiles.map((_, i) => {
+      const angle = i * GOLDEN_ANGLE;
+      const maxRadius = Math.min(w, h) * 0.42;
+      const radius = maxRadius * Math.sqrt((i + 0.5) / tiles.length);
+      return {
+        x: Math.cos(angle) * radius + gsap.utils.random(-24, 24),
+        y: Math.sin(angle) * radius * 0.72 + gsap.utils.random(-24, 24),
+        rotation: gsap.utils.random(-16, 16),
+        scale: gsap.utils.random(0.72, 1.02),
+      };
+    });
+
+    gsap.set(tiles, { x: 0, y: 0, scale: 0.55, rotation: 0, opacity: 0 });
+
+    this.scatterTl = gsap.timeline();
+    this.scatterTl
+      .to(promptWrap, { opacity: 0, duration: 0.4, ease: 'power1.out' }, 0)
+      .to(tiles, {
+        x: (i) => targets[i].x,
+        y: (i) => targets[i].y,
+        rotation: (i) => targets[i].rotation,
+        scale: (i) => targets[i].scale,
+        opacity: 1,
+        duration: () => gsap.utils.random(1.1, 1.9),
+        ease: 'power3.out',
+        stagger: { each: 0.045, from: 'random' },
+      }, 0.1)
+      .call(() => this._startIdleFloat(), null, '+=0.2')
+      .call(() => this._morphToGrid(), null, '+=1.0');
+  }
+
+  // 着地後の微小な浮遊ループ（モバイルは省電力優先で無効化）
+  _startIdleFloat() {
+    if (window.matchMedia('(max-width: 640px)').matches) return;
+    this.tiles.forEach((el) => {
+      gsap.to(el, {
+        y: '+=8', x: '+=4', rotation: '+=1.5',
+        duration: gsap.utils.random(3, 5), ease: 'sine.inOut',
+        yoyo: true, repeat: -1, delay: gsap.utils.random(0, 2),
+      });
+    });
+  }
+
+  // 散乱 → グリッド化。Flipプラグインが枚数非依存でレイアウト差分を吸収する
+  _morphToGrid() {
+    const gallery = document.getElementById('psGallery');
+    const tiles = this.tiles;
+    let state = null;
+
+    if (window.gsap) {
+      gsap.killTweensOf(tiles);
+      if (window.Flip) state = Flip.getState(tiles, { props: 'rotation,opacity' });
+    }
+
+    tiles.forEach((tile) => gallery.appendChild(tile));
+    gallery.classList.add('is-active');
+
+    if (window.gsap && window.Flip && state) {
+      gsap.set(tiles, { clearProps: 'transform,opacity' });
+      Flip.from(state, {
+        duration: 1.3,
+        ease: 'power3.inOut',
+        stagger: 0.02,
+        absolute: true,
+        onComplete: () => {
+          if (window.ScrollTrigger) ScrollTrigger.refresh();
+          this._setupEndingScrollTrigger();
+          this._autoRevealGallery();
+        },
+      });
+    } else {
+      this._setupEndingScrollTrigger();
+    }
+  }
+
+  _autoRevealGallery() {
+    const page = document.getElementById('groupPage');
+    const gallery = document.getElementById('psGallery');
+    const target = Math.max(0, gallery.offsetTop - 60);
+    if (!window.gsap) { page.scrollTop = target; return; }
+    gsap.to(page, { duration: 1.1, scrollTop: target, ease: 'power2.inOut', delay: 0.3 });
+  }
+
+  // ページ最下部までスクロールすると、ギャラリーの写真が中央の集合写真へ収束していく
+  _setupEndingScrollTrigger() {
+    if (!window.gsap || !window.ScrollTrigger || !this.tiles.length) return;
+
+    const zone = document.getElementById('psEndingZone');
+    const anchor = document.getElementById('psEndingAnchor');
+    const message = document.getElementById('psEndingMessage');
+
+    message.classList.remove('hidden');
+    gsap.set(message, { opacity: 0, y: 24 });
+    gsap.set(anchor, { opacity: 0, scale: 0.9 });
+
+    const anchorRect = anchor.getBoundingClientRect();
+    const anchorCx = anchorRect.left + anchorRect.width / 2;
+    const anchorCy = anchorRect.top + anchorRect.height / 2;
+
+    this.endingTl = gsap.timeline({
+      scrollTrigger: {
+        trigger: zone,
+        scroller: '#groupPage',
+        start: 'top top',
+        end: 'bottom bottom',
+        scrub: 1,
+        pin: true,
+        pinSpacing: true,
+      },
+    });
+
+    // 収束先(=heroImageと同じ写真)との相対距離を一度だけ計算し、外側のタイルほど先に閉じるようにする
+    this.tiles.forEach((tile, i) => {
+      const r = tile.getBoundingClientRect();
+      const dx = anchorCx - (r.left + r.width / 2);
+      const dy = anchorCy - (r.top + r.height / 2);
+      this.endingTl.to(tile, { x: dx, y: dy, scale: 0.12, opacity: 0, ease: 'none' }, i * 0.01);
+    });
+
+    this.endingTl
+      .to(anchor, { opacity: 1, scale: 1, ease: 'none' }, 0.55)
+      .to(message, { opacity: 1, y: 0, ease: 'none' }, 0.75);
+  }
+
+  // ---- ライトボックス ----
+  openLightbox(index) {
+    this.lightboxIndex = index;
+    this._renderLightbox();
+    document.getElementById('psLightbox').classList.remove('hidden');
+  }
+
+  closeLightbox() {
+    const lb = document.getElementById('psLightbox');
+    if (lb) lb.classList.add('hidden');
+  }
+
+  isLightboxOpen() {
+    const lb = document.getElementById('psLightbox');
+    return !!lb && !lb.classList.contains('hidden');
+  }
+
+  _renderLightbox() {
+    const photos = (this.group && this.group.photos) || [];
+    if (!photos.length) return;
+    document.getElementById('psLightboxImg').src = photos[this.lightboxIndex];
+    document.getElementById('psLightboxImg').alt = (this.group && this.group.name) || '';
+    document.getElementById('psLightboxCounter').textContent = (this.lightboxIndex + 1) + ' / ' + photos.length;
+  }
+
+  prevLightbox() {
+    const photos = (this.group && this.group.photos) || [];
+    if (!photos.length) return;
+    this.lightboxIndex = (this.lightboxIndex - 1 + photos.length) % photos.length;
+    this._renderLightbox();
+  }
+
+  nextLightbox() {
+    const photos = (this.group && this.group.photos) || [];
+    if (!photos.length) return;
+    this.lightboxIndex = (this.lightboxIndex + 1) % photos.length;
+    this._renderLightbox();
+  }
+
+  _bindLightbox() {
+    document.getElementById('psLightboxClose').addEventListener('click', () => this.closeLightbox());
+    document.getElementById('psLightboxBackdrop').addEventListener('click', () => this.closeLightbox());
+    document.getElementById('psLightboxPrev').addEventListener('click', () => this.prevLightbox());
+    document.getElementById('psLightboxNext').addEventListener('click', () => this.nextLightbox());
+
+    const lb = document.getElementById('psLightbox');
+    let touchStartX = 0;
+    lb.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; }, { passive: true });
+    lb.addEventListener('touchend', (e) => {
+      const diff = touchStartX - e.changedTouches[0].clientX;
+      if (Math.abs(diff) > 40) { diff > 0 ? this.nextLightbox() : this.prevLightbox(); }
+    }, { passive: true });
+  }
+}
+
+let photoStoryController = null;
+
+// 高校グループのページを開いたときにだけDOMを構築する（初期ロードに影響しないよう遅延初期化）
+function renderPhotoStory(group) {
+  const root = document.getElementById('photoStoryHero');
+  if (!photoStoryController) photoStoryController = new PhotoStoryController(root);
+  photoStoryController.render(group);
+}
+
+function initPhotoStoryAnimation() {
+  if (photoStoryController) photoStoryController.start();
+}
+
+function stopPhotoStoryAnimation() {
+  if (photoStoryController) photoStoryController.stop();
+}
+
 // ---- グループページ開閉（ステップ2） ----
 function openGroupPage(group) {
   document.getElementById('groupName').textContent = group.name;
 
   const heroEl = document.getElementById('jhsHero');
+  const photoStoryEl = document.getElementById('photoStoryHero');
   const photosEl = document.getElementById('groupPhotos');
   const msgEl = document.getElementById('groupMessage');
+  const contentEl = document.querySelector('.group-page__content');
+
+  stopBballAnimation();
+  stopPhotoStoryAnimation();
+  heroEl.classList.add('hidden');
+  photoStoryEl.classList.add('hidden');
+  contentEl.classList.remove('group-page__content--photostory');
 
   if (group.customHero === 'jersey') {
     document.getElementById('jhsHeroImage').src = group.heroImage;
@@ -665,9 +994,13 @@ function openGroupPage(group) {
     heroEl.classList.remove('hidden');
     photosEl.classList.add('hidden');
     msgEl.classList.add('hidden');
+  } else if (group.customHero === 'photoStory') {
+    photosEl.classList.add('hidden');
+    msgEl.classList.add('hidden');
+    contentEl.classList.add('group-page__content--photostory');
+    photoStoryEl.classList.remove('hidden');
+    renderPhotoStory(group);
   } else {
-    stopBballAnimation();
-    heroEl.classList.add('hidden');
     photosEl.classList.remove('hidden');
     msgEl.classList.remove('hidden');
 
@@ -692,12 +1025,14 @@ function openGroupPage(group) {
   document.body.style.overflow = 'hidden';
 
   if (group.customHero === 'jersey') initBballAnimation();
+  if (group.customHero === 'photoStory') initPhotoStoryAnimation();
 
   setTimeout(() => document.getElementById('guestNumberInput').focus({ preventScroll: true }), 300);
 }
 
 function closeGroupPage() {
   stopBballAnimation();
+  stopPhotoStoryAnimation();
   document.getElementById('groupPage').classList.add('hidden');
   document.body.style.overflow = '';
   document.getElementById('codeInput').value = '';
@@ -1087,6 +1422,11 @@ function closeTravelModal() {
 
 // ---- ESC キーでオーバーレイを閉じる ----
 document.addEventListener('keydown', (e) => {
+  if (photoStoryController && photoStoryController.isLightboxOpen()) {
+    if (e.key === 'Escape')    { photoStoryController.closeLightbox(); return; }
+    if (e.key === 'ArrowLeft')  { photoStoryController.prevLightbox(); return; }
+    if (e.key === 'ArrowRight') { photoStoryController.nextLightbox(); return; }
+  }
   if (e.key !== 'Escape') return;
   if (!document.getElementById('guestPage').classList.contains('hidden'))   closeGuestPage();
   if (!document.getElementById('groupPage').classList.contains('hidden'))   closeGroupPage();

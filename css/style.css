@@ -1292,6 +1292,298 @@ h1, h2, h3 {
   margin-bottom: 40px;
 }
 
+/* ---- 高校グループ専用: 思い出フォトストーリー(NGNKG) ----
+   集合写真1枚 → クリックで思い出写真が舞い散る → グリッドギャラリーへ整列 →
+   最下部までスクロールすると再び1枚の集合写真へ収束する体験型演出。 */
+.photo-story.hidden {
+  display: none;
+}
+
+.group-page__content--photostory .group-page__eyebrow,
+.group-page__content--photostory .group-page__name,
+.group-page__content--photostory .group-page__note,
+.group-page__content--photostory .group-page__divider {
+  display: none;
+}
+
+.photo-story__stage1 {
+  position: relative;
+  left: 50%;
+  width: 100vw;
+  margin-left: -50vw;
+  height: 85vh;
+  height: 85dvh;
+  min-height: 420px;
+  overflow: hidden;
+  margin-bottom: 40px;
+  cursor: pointer;
+  background: var(--color-bg);
+}
+
+.photo-story__hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.6s var(--ease-out);
+}
+
+.photo-story__stage1:hover .photo-story__hero-img {
+  transform: scale(1.02);
+}
+
+.photo-story__prompt-wrap {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.photo-story__pulse-ring {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  margin-bottom: 18px;
+  animation: ps-pulse 2.6s ease-out infinite;
+}
+
+.photo-story__prompt {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: clamp(0.95rem, 2.2vw, 1.3rem);
+  letter-spacing: 0.08em;
+  color: #fff;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+  animation: ps-breathe 2.6s ease-in-out infinite;
+}
+
+@keyframes ps-breathe {
+  0%, 100% { opacity: 0.65; }
+  50% { opacity: 1; }
+}
+
+@keyframes ps-pulse {
+  0% { transform: scale(1); opacity: 0.7; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+/* Stage2: クリック後に思い出写真が舞い散る散乱レイヤー */
+.photo-story__scatter {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.photo-story__tile {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 130px;
+  height: 130px;
+  margin: -65px 0 0 -65px;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(44, 35, 24, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.photo-story__tile-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* クリック前は完全に透明・無反応にしておく（GSAPが散乱開始時にopacityをアニメーションで持ち上げる）。
+   pointer-events:none にしないと、集合写真の中央に重なった状態のタイルが
+   stage1のクリック判定を奪ってしまう。 */
+.photo-story__scatter .photo-story__tile {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.photo-story__gallery .photo-story__tile {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Stage3: 枚数に依存しない擬似Masonryギャラリー */
+.photo-story__gallery {
+  display: none;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  grid-auto-rows: 150px;
+  grid-auto-flow: dense;
+  gap: 6px;
+  margin-bottom: 56px;
+}
+
+.photo-story__gallery.is-active {
+  display: grid;
+}
+
+.photo-story__gallery .photo-story__tile {
+  position: relative;
+  top: auto;
+  left: auto;
+  width: auto;
+  height: auto;
+  margin: 0;
+}
+
+.photo-story__tile--featured {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+
+.photo-story__gallery .photo-story__tile-img {
+  transition: transform 0.5s var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .photo-story__gallery .photo-story__tile:hover .photo-story__tile-img {
+    transform: scale(1.045);
+  }
+}
+
+/* スクロール最後: 写真が中央の1枚(集合写真)へ収束するゾーン */
+.photo-story__ending-zone {
+  position: relative;
+  min-height: 160vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.photo-story__ending-anchor {
+  width: min(56vh, 78vw, 380px);
+  height: auto;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  border-radius: 4px;
+  box-shadow: 0 20px 50px rgba(44, 35, 24, 0.25);
+  opacity: 0;
+  margin-bottom: 32px;
+}
+
+.photo-story__ending-message {
+  font-family: var(--font-serif);
+  font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+  line-height: 2.2;
+  color: var(--color-text);
+  white-space: pre-line;
+  max-width: 460px;
+}
+
+.photo-story__ending-message.hidden {
+  display: none;
+}
+
+/* ライトボックス(前後移動可能な写真ビューア) */
+.photo-story__lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 4900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.photo-story__lightbox.hidden {
+  display: none;
+}
+
+.photo-story__lightbox-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(9, 9, 8, 0.85);
+  cursor: pointer;
+}
+
+.photo-story__lightbox-img {
+  position: relative;
+  z-index: 1;
+  max-width: 88vw;
+  max-height: 82vh;
+  object-fit: contain;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.photo-story__lightbox-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 2;
+  background: rgba(9, 9, 8, 0.7);
+  border: 1px solid rgba(201, 169, 110, 0.3);
+  color: #efe6d8;
+  font-family: var(--font-sans);
+  font-size: 0.62rem;
+  letter-spacing: 0.3em;
+  padding: 8px 14px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: border-color 0.3s, color 0.3s;
+  min-height: 36px;
+}
+
+.photo-story__lightbox-close:hover {
+  border-color: var(--color-gold);
+  color: var(--color-gold);
+}
+
+.photo-story__lightbox-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  background: rgba(9, 9, 8, 0.5);
+  border: 1px solid rgba(201, 169, 110, 0.3);
+  color: #efe6d8;
+  font-size: 1.6rem;
+  line-height: 1;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: border-color 0.3s, color 0.3s;
+}
+
+.photo-story__lightbox-nav:hover {
+  border-color: var(--color-gold);
+  color: var(--color-gold);
+}
+
+.photo-story__lightbox-nav--prev { left: 16px; }
+.photo-story__lightbox-nav--next { right: 16px; }
+
+.photo-story__lightbox-counter {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  font-family: var(--font-sans);
+  font-size: 0.62rem;
+  letter-spacing: 0.3em;
+  color: rgba(239, 230, 216, 0.7);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .photo-story__pulse-ring,
+  .photo-story__prompt {
+    animation: none;
+  }
+}
+
 .group-page__hint {
   font-size: 0.78rem;
   letter-spacing: 0.1em;
@@ -1735,6 +2027,40 @@ h1, h2, h3 {
   /* プロフィール余白調整 */
   .profile__inner {
     padding: 40px 0;
+  }
+
+  /* 思い出フォトストーリー: モバイル調整 */
+  .photo-story__stage1 {
+    height: 70vh;
+    height: 70dvh;
+    min-height: 340px;
+  }
+
+  .photo-story__tile {
+    width: 92px;
+    height: 92px;
+    margin: -46px 0 0 -46px;
+  }
+
+  .photo-story__gallery {
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    grid-auto-rows: 120px;
+    gap: 4px;
+  }
+
+  .photo-story__ending-zone {
+    min-height: 120vh;
+  }
+
+  .photo-story__ending-anchor {
+    width: min(50vh, 70vw, 260px);
+    height: auto;
+  }
+
+  .photo-story__lightbox-nav {
+    width: 38px;
+    height: 38px;
+    font-size: 1.3rem;
   }
 }
 

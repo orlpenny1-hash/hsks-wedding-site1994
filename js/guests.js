@@ -60,11 +60,28 @@ const GROUPS = {
   // ---- 高校グループ ----
   "GROUP_HS": {
     passphrase: "ちょうこうきかい",
-    name: "", // TODO: 表示名未定
+    name: "長工イツメンへ！",
+    customHero: "photoStory",
+    heroImage: "images/groupLP/NGNKG/LINE_ALBUM_20241207_260706_1.jpg",
     photos: [
-      // TODO: 写真追加予定
+      "images/groupLP/NGNKG/IMG_0354_web.jpg",
+      "images/groupLP/NGNKG/LINE_ALBUM_20190505_260706_1.jpg",
+      "images/groupLP/NGNKG/LINE_ALBUM_20190505_260706_2.jpg",
+      "images/groupLP/NGNKG/LINE_ALBUM_20190505_260706_3.jpg",
+      "images/groupLP/NGNKG/LINE_ALBUM_20190505_260706_4.jpg",
+      "images/groupLP/NGNKG/LINE_ALBUM_20190505_260706_5.jpg",
+      "images/groupLP/NGNKG/LINE_ALBUM_20190505_260706_6.jpg",
+      "images/groupLP/NGNKG/LINE_ALBUM_20190817_260706_1.jpg",
+      "images/groupLP/NGNKG/LINE_ALBUM_20250824_260706_1.jpg",
+      "images/groupLP/NGNKG/LINE_ALBUM_20250824_260706_2.jpg",
+      "images/groupLP/NGNKG/LINE_ALBUM_20250824_260706_3.jpg",
+      "images/groupLP/NGNKG/LINE_ALBUM_20250824_260706_4.jpg",
+      "images/groupLP/NGNKG/LINE_ALBUM_20250824_260706_5.jpg",
+      "images/groupLP/NGNKG/P1010782_web.jpg",
+      "images/groupLP/NGNKG/P1030347_web.jpg",
+      "images/groupLP/NGNKG/P1050988_web.jpg",
     ],
-    message: "", // TODO: メッセージ未定
+    message: "みんなと過ごしているときはずっと笑っていて\nどんなに年を重ねても集まれば高校の時の姿に戻れる最高のメンツ！\n\n出会えたことに心から感謝！\n\nこれからもみんなでたくさん笑ってたくさん呑んで行きましょう！！",
     guests: {
       // TODO: ゲスト情報を追加予定
     }
