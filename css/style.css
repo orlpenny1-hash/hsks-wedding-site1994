@@ -1584,6 +1584,105 @@ h1, h2, h3 {
   }
 }
 
+/* ---- 大学グループ専用: パズルメモリーズ(NGTYKD) ----
+   バラバラに飛んでくる思い出写真がジグソーピースとして正しい升目へ収束し、
+   隙間のない1枚の集合写真へ組み上がる体験型演出。 */
+.puzzle-hero.hidden {
+  display: none;
+}
+
+.group-page__content--puzzle .group-page__eyebrow,
+.group-page__content--puzzle .group-page__name,
+.group-page__content--puzzle .group-page__note,
+.group-page__content--puzzle .group-page__divider {
+  display: none;
+}
+
+.puzzle-hero__stage {
+  position: relative;
+  left: 50%;
+  width: 100vw;
+  margin-left: -50vw;
+  overflow: visible;
+  background: var(--color-bg);
+  margin-bottom: 40px;
+}
+
+.puzzle-hero__mosaic {
+  position: relative;
+  margin: 0 auto;
+}
+
+/* GSAPがx/y/rotation/scaleを当てる外側コンテナ。clip-pathとtransformを
+   同一要素に適用するとSafari系で不具合が出ることがあるため、
+   clip-path担当(__clip)とtransform担当(このクラス)を分離している。 */
+.puzzle-piece {
+  position: absolute;
+  top: 0;
+  left: 0;
+  will-change: transform, opacity;
+}
+
+/* clip-pathはピースの本来の升目(100%×100%)を超えてタブが膨らむ形状のため、
+   overflow:hiddenにはしない。imgはclip外周のタブ部分にも実写真を敷き詰められるよう
+   一回り大きく中央配置しておく。 */
+.puzzle-piece__clip {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.puzzle-piece__img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 160%;
+  height: 160%;
+  transform: translate(-50%, -50%);
+  object-fit: cover;
+  display: block;
+  cursor: pointer;
+  transition: transform 0.5s var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .puzzle-piece:hover .puzzle-piece__img {
+    transform: translate(-50%, -50%) scale(1.045);
+  }
+}
+
+/* 最後のピースが「カチッ」とはまる瞬間だけの控えめな光沢パルス */
+.puzzle-piece--final .puzzle-piece__clip {
+  animation: pz-snap 0.5s var(--ease-out);
+}
+
+@keyframes pz-snap {
+  0% {
+    filter: drop-shadow(0 0 0 rgba(201, 169, 110, 0));
+  }
+  40% {
+    filter: drop-shadow(0 0 14px rgba(201, 169, 110, 0.55));
+  }
+  100% {
+    filter: drop-shadow(0 0 0 rgba(201, 169, 110, 0));
+  }
+}
+
+.puzzle-hero__ending-message {
+  font-family: var(--font-serif);
+  font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+  line-height: 2.2;
+  color: var(--color-text);
+  white-space: pre-line;
+  text-align: center;
+  max-width: 460px;
+  margin: 32px auto 56px;
+}
+
+.puzzle-hero__ending-message.hidden {
+  display: none;
+}
+
 .group-page__hint {
   font-size: 0.78rem;
   letter-spacing: 0.1em;

@@ -90,11 +90,43 @@ const GROUPS = {
   // ---- 大学グループ ----
   "GROUP_UNIV": {
     passphrase: "NUPALS",
-    name: "", // TODO: 表示名未定
+    name: "TODO: 表示名未定", // TODO: 表示名未定
+    customHero: "puzzle",
     photos: [
-      // TODO: 写真追加予定
+      "images/groupLP/NGTYKD/24A726AD-B09C-4F36-8DAE-364866D4FD10.jpg",
+      "images/groupLP/NGTYKD/4D909125-2AEB-4986-9D6A-04B49E8434A3.jpg",
+      "images/groupLP/NGTYKD/LINE_ALBUM_キャンプ🏕_260707_1.jpg",
+      "images/groupLP/NGTYKD/LINE_ALBUM_キャンプ🏕_260707_2.jpg",
+      "images/groupLP/NGTYKD/LINE_ALBUM_キャンプ🏕_260707_3.jpg",
+      "images/groupLP/NGTYKD/LINE_ALBUM_キャンプ🏕_260707_4.jpg",
+      "images/groupLP/NGTYKD/LINE_ALBUM_ホワイトコートセレモニー_260707_1.jpg",
+      "images/groupLP/NGTYKD/LINE_ALBUM_卒アル_260708_1.jpg",
+      "images/groupLP/NGTYKD/LINE_ALBUM_卒アル撮影_260707_1.jpg",
+      "images/groupLP/NGTYKD/LINE_ALBUM_斑尾高原 どんぐり村_260707_1.jpg",
+      "images/groupLP/NGTYKD/LINE_ALBUM_斑尾高原 どんぐり村_260707_2.jpg",
+      "images/groupLP/NGTYKD/LINE_ALBUM_斑尾高原 どんぐり村_260707_3.jpg",
+      "images/groupLP/NGTYKD/LINE_ALBUM_斑尾高原 どんぐり村_260707_4.jpg",
+      "images/groupLP/NGTYKD/LINE_ALBUM_斑尾高原 どんぐり村_260707_5.jpg",
+      "images/groupLP/NGTYKD/LINE_ALBUM_斑尾高原 どんぐり村_260707_6.jpg",
+      "images/groupLP/NGTYKD/LINE_ALBUM_斑尾高原 どんぐり村_260707_7.jpg",
+      "images/groupLP/NGTYKD/LINE_ALBUM_斑尾高原 どんぐり村_260707_8.jpg",
+      "images/groupLP/NGTYKD/LINE_ALBUM_斑尾高原 どんぐり村_260708_1.jpg",
+      "images/groupLP/NGTYKD/LINE_ALBUM_斑尾高原 どんぐり村_260708_2.jpg",
+      "images/groupLP/NGTYKD/LINE_ALBUM_斑尾高原 どんぐり村_260708_3.jpg",
+      "images/groupLP/NGTYKD/LINE_ALBUM_長岡花火_260707_1.jpg",
+      "images/groupLP/NGTYKD/LINE_ALBUM_長岡花火_260708_1.jpg",
+      "images/groupLP/NGTYKD/LINE_ALBUM_長岡花火_260708_2.jpg",
+      "images/groupLP/NGTYKD/S__91602956_0.jpg",
+      "images/groupLP/NGTYKD/S__91602957_0.jpg",
+      "images/groupLP/NGTYKD/S__91602958_0.jpg",
+      "images/groupLP/NGTYKD/S__91602959_0.jpg",
+      "images/groupLP/NGTYKD/S__91602963_0.jpg",
+      "images/groupLP/NGTYKD/S__91602964_0.jpg",
+      "images/groupLP/NGTYKD/S__91602965_0.jpg",
+      "images/groupLP/NGTYKD/S__91602966_0.jpg",
+      "images/groupLP/NGTYKD/S__91602967_0.jpg",
     ],
-    message: "", // TODO: メッセージ未定
+    message: "TODO: 完成後メッセージ未定", // TODO: メッセージ未定
     guests: {
       // TODO: ゲスト情報を追加予定
     }
