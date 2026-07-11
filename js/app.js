@@ -972,129 +972,166 @@ function stopPhotoStoryAnimation() {
 }
 
 // ---- 大学グループ専用: パズルメモリーズ ----
-// 思い出写真それぞれをジグソーピースとして風に流されるように飛来させ、
-// スクロールに応じて正しい升目へ収束、隙間なく組み上がった1枚のモザイクに仕上げる演出。
+// 思い出写真を、列ごとに高さの異なるPinterest風マソンリーレイアウトのタイルとして
+// 風に流されるように飛来させ、クリック一回で列の一番下へ収束させる演出。
 
-// 隣接ピースの辺(タブ/ブランク)を必ず一致させるため、辺ごとのカーブ形状は
-// generatePuzzleEdges() で1回だけ生成し、両側のピースが同じ形状オブジェクトを参照する。
-function buildPuzzleEdgeProfile(bulge, jitter) {
-  const neckStart = 0.32 + jitter() * 0.03;
-  const bulbStart = 0.24 + jitter() * 0.03;
-  const bulbEnd = 0.76 - jitter() * 0.03;
-  const neckEnd = 0.68 - jitter() * 0.03;
-  return [
-    { type: 'L', p: [neckStart, 0] },
-    { type: 'C', c1: [neckStart + 0.05, 0], c2: [bulbStart - 0.05, bulge * 0.6], p: [bulbStart, bulge] },
-    { type: 'C', c1: [bulbStart + 0.07, bulge * 1.28], c2: [bulbEnd - 0.07, bulge * 1.28], p: [bulbEnd, bulge] },
-    { type: 'C', c1: [bulbEnd + 0.05, bulge * 0.6], c2: [neckEnd - 0.05, 0], p: [neckEnd, 0] },
-    { type: 'L', p: [1, 0] },
-  ];
+// コンテナ幅に応じた列数(狭い画面ほど列を減らす。理想の1列あたり幅を目安に決める)。
+function computeMasonryColumns(containerW) {
+  const width = Math.min(containerW, 960);
+  const idealColWidth = containerW < 640 ? 110 : 160;
+  return Math.max(2, Math.min(6, Math.round(width / idealColWidth)));
 }
 
-// 隣接ピースは同じ辺カーブを逆向きに辿る必要がある(制御点の順序を入れ替えて向きだけ反転)。
-function reversePuzzleOps(ops) {
-  const points = [[0, 0]];
-  ops.forEach((op) => points.push(op.p));
-  const reversed = [];
-  for (let i = ops.length - 1; i >= 0; i--) {
-    const op = ops[i];
-    reversed.push(op.type === 'L'
-      ? { type: 'L', p: points[i] }
-      : { type: 'C', c1: op.c2, c2: op.c1, p: points[i] });
-  }
-  return reversed;
-}
-
-function generatePuzzleEdges(rows, cols) {
-  const depth = 0.19;
-  const edgeH = []; // edgeH[r][c]: 列c・c+1境界(行r)
-  const edgeV = []; // edgeV[r][c]: 行r・r+1境界(列c)
-  for (let r = 0; r < rows; r++) {
-    edgeH.push([]);
-    for (let c = 0; c < cols - 1; c++) {
-      const sign = Math.random() < 0.5 ? -1 : 1;
-      const jitter = () => Math.random() - 0.5;
-      edgeH[r].push({ ops: buildPuzzleEdgeProfile(sign * depth, jitter) });
+function puzzleRgbToHsl(r, g, b) {
+  r /= 255; g /= 255; b /= 255;
+  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  const l = (max + min) / 2;
+  let h = 0, s = 0;
+  const d = max - min;
+  if (d !== 0) {
+    s = d / (1 - Math.abs(2 * l - 1));
+    switch (max) {
+      case r: h = ((g - b) / d) % 6; break;
+      case g: h = (b - r) / d + 2; break;
+      default: h = (r - g) / d + 4; break;
     }
+    h *= 60;
+    if (h < 0) h += 360;
   }
-  for (let r = 0; r < rows - 1; r++) {
-    edgeV.push([]);
-    for (let c = 0; c < cols; c++) {
-      const sign = Math.random() < 0.5 ? -1 : 1;
-      const jitter = () => Math.random() - 0.5;
-      edgeV[r].push({ ops: buildPuzzleEdgeProfile(sign * depth, jitter) });
+  return { h, s, l };
+}
+
+// 写真の平均色(HSL)と縦横比をまとめて計測する。マソンリーのタイル高さは縦横比から、
+// 配置の色味判定は平均色から決める。file://で開いた場合はキャンバスがtainted扱いになり
+// getImageDataが例外を投げることがあるため、その際はcolor:nullを返し
+// 呼び出し側で「色味による並べ替えなし」にフォールバックする。
+const puzzlePhotoMetaCache = new Map();
+function getPuzzlePhotoMeta(src) {
+  if (puzzlePhotoMetaCache.has(src)) return puzzlePhotoMetaCache.get(src);
+  const promise = new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const aspect = img.naturalWidth && img.naturalHeight ? img.naturalWidth / img.naturalHeight : 1;
+      let color = null;
+      try {
+        const size = 16;
+        const canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, size, size);
+        const data = ctx.getImageData(0, 0, size, size).data;
+        let r = 0, g = 0, b = 0, count = 0;
+        for (let i = 0; i < data.length; i += 4) {
+          r += data[i]; g += data[i + 1]; b += data[i + 2];
+          count++;
+        }
+        color = puzzleRgbToHsl(r / count, g / count, b / count);
+      } catch (e) {
+        color = null;
+      }
+      resolve({ color, aspect });
+    };
+    img.onerror = () => resolve({ color: null, aspect: 1 });
+    img.src = src;
+  });
+  puzzlePhotoMetaCache.set(src, promise);
+  return promise;
+}
+
+// 色相を主とした距離(色味の近さ)。色が取得できなかった写真は常に「最も遠い」扱いにし、
+// 判定不能な写真同士を無理に隣接させないようにする。
+function puzzleColorDistance(a, b) {
+  if (!a || !b) return 1;
+  const dh = Math.min(Math.abs(a.h - b.h), 360 - Math.abs(a.h - b.h)) / 180;
+  const ds = Math.abs(a.s - b.s);
+  const dl = Math.abs(a.l - b.l);
+  return dh * 0.7 + ds * 0.15 + dl * 0.15;
+}
+
+// バギー(ATV)に乗っている写真と、黄色が目立つ写真(全身タイツ・バナナ仮装)は、
+// 色味の距離だけでは離れる保証がないため、ファイル名で明示的にタグ付けして
+// 隣接(斜めも含む)させないよう強いペナルティを課す。
+const PUZZLE_BUGGY_FILES = ['/B1.jpg', '/A3.jpg', '/C3.jpg'];
+const PUZZLE_YELLOW_FILES = ['/D6.jpg', '/B5.jpg', '/D4.jpg'];
+function puzzleMatchesAny(src, needles) {
+  return needles.some((needle) => src.includes(needle));
+}
+
+// 常に「今一番低い列」へ次のタイルを積む(定番のマソンリー配置)。その際、同じ列の
+// 直上・左右の列の直近タイルと最も色味が離れている写真を貪欲に選ぶことで、
+// 色が近い写真同士が隣接しにくくなる。バギー/黄色の組み合わせは色味スコアより
+// 優先して隣接を避ける。縦横比は0.55〜1.6にクランプしタイルの高さの土台にする。
+//
+// 列ごとの割り振りが終わったら、モザイク全体の上端・下端が綺麗な直線に揃うよう、
+// 各列の合計高さ(自然な縦横比のまま)を列内の全タイルの平均値に一律スケーリングする
+// (ギャップ自体は伸縮させず、写真部分の高さだけを調整する)。
+async function planPuzzleMasonryLayout(photos, columnCount, columnWidth, gap) {
+  const metas = await Promise.all(photos.map((src) => getPuzzlePhotoMeta(src)));
+  const isBuggy = photos.map((src) => puzzleMatchesAny(src, PUZZLE_BUGGY_FILES));
+  const isYellow = photos.map((src) => puzzleMatchesAny(src, PUZZLE_YELLOW_FILES));
+  const clashes = (a, b) => (isBuggy[a] && isYellow[b]) || (isYellow[a] && isBuggy[b]);
+
+  const naturalHeights = metas.map((m) => {
+    const aspect = Math.min(1.6, Math.max(0.55, m.aspect || 1));
+    return Math.round(columnWidth / aspect);
+  });
+
+  const colHeights = new Array(columnCount).fill(0);
+  const colTopIdx = new Array(columnCount).fill(undefined);
+  const columns = Array.from({ length: columnCount }, () => []);
+  const remaining = new Set(metas.map((_, i) => i));
+
+  while (remaining.size) {
+    let col = 0;
+    for (let c = 1; c < columnCount; c++) {
+      if (colHeights[c] < colHeights[col]) col = c;
     }
-  }
-  return { edgeH, edgeV };
-}
 
-function emitPuzzleOps(ops, mapPoint) {
-  return ops.map((op) => {
-    if (op.type === 'L') {
-      const p = mapPoint(op.p);
-      return `L ${p[0].toFixed(4)} ${p[1].toFixed(4)}`;
+    const neighborIdxs = [colTopIdx[col], colTopIdx[col - 1], colTopIdx[col + 1]]
+      .filter((v) => v !== undefined);
+    const neighborColors = neighborIdxs.map((i) => metas[i].color).filter(Boolean);
+
+    let pick = remaining.values().next().value;
+    if (neighborIdxs.length) {
+      let bestScore = -Infinity;
+      remaining.forEach((photoIdx) => {
+        let score = neighborColors.length
+          ? Math.min(...neighborColors.map((nc) => puzzleColorDistance(metas[photoIdx].color, nc)))
+          : 0;
+        if (neighborIdxs.some((nIdx) => clashes(photoIdx, nIdx))) score -= 10;
+        if (score > bestScore) { bestScore = score; pick = photoIdx; }
+      });
     }
-    const c1 = mapPoint(op.c1);
-    const c2 = mapPoint(op.c2);
-    const p = mapPoint(op.p);
-    return `C ${c1[0].toFixed(4)} ${c1[1].toFixed(4)} ${c2[0].toFixed(4)} ${c2[1].toFixed(4)} ${p[0].toFixed(4)} ${p[1].toFixed(4)}`;
-  }).join(' ');
-}
+    remaining.delete(pick);
 
-// objectBoundingBox(0〜1)のユニット正方形を時計回り(上→右→下→左)に辿るpath dを組み立てる。
-// 外周(隣接ピースがない辺)は直線、内部境界はタブ/ブランクの曲線になる。
-function buildJigsawPathD(row, col, rows, cols, edgeH, edgeV) {
-  const parts = ['M 0 0'];
-
-  const topEdge = row > 0 ? edgeV[row - 1][col] : null;
-  parts.push(topEdge
-    ? emitPuzzleOps(topEdge.ops, (pt) => [pt[0], pt[1]])
-    : 'L 1 0');
-
-  const rightEdge = col < cols - 1 ? edgeH[row][col] : null;
-  parts.push(rightEdge
-    ? emitPuzzleOps(rightEdge.ops, (pt) => [1 + pt[1], pt[0]])
-    : 'L 1 1');
-
-  const bottomEdge = row < rows - 1 ? edgeV[row][col] : null;
-  parts.push(bottomEdge
-    ? emitPuzzleOps(reversePuzzleOps(bottomEdge.ops), (pt) => [pt[0], 1 + pt[1]])
-    : 'L 0 1');
-
-  const leftEdge = col > 0 ? edgeH[row][col - 1] : null;
-  parts.push(leftEdge
-    ? emitPuzzleOps(reversePuzzleOps(leftEdge.ops), (pt) => [pt[1], pt[0]])
-    : 'L 0 0');
-
-  parts.push('Z');
-  return parts.join(' ');
-}
-
-// 写真枚数に応じて、最終行の充填率が良く・かつやや横長になる列数/行数を選ぶ。
-function computePuzzleLayout(n, containerW) {
-  const maxCols = containerW < 640 ? 4 : 8;
-  const sqrtN = Math.sqrt(n);
-  let best = null;
-  const minCols = Math.max(2, Math.round(sqrtN) - 2);
-  const maxColsToTry = Math.min(maxCols, Math.round(sqrtN) + 3);
-  for (let cols = minCols; cols <= Math.max(minCols, maxColsToTry); cols++) {
-    const rows = Math.ceil(n / cols);
-    const lastRowCount = n - (rows - 1) * cols;
-    const fillRatio = lastRowCount / cols;
-    const aspectPenalty = Math.abs(rows - cols) * 0.15;
-    const landscapeBonus = cols >= rows ? 0.05 : 0;
-    const score = fillRatio - aspectPenalty + landscapeBonus;
-    if (!best || score > best.score) best = { cols, rows, score };
+    columns[col].push(pick);
+    colHeights[col] += naturalHeights[pick] + gap;
+    colTopIdx[col] = pick;
   }
-  if (!best) {
-    const cols = Math.min(maxCols, Math.max(2, Math.round(sqrtN)));
-    best = { cols, rows: Math.ceil(n / cols) };
-  }
-  return { cols: best.cols, rows: best.rows };
-}
 
-function puzzleHeroCount(n) {
-  return Math.min(6, Math.max(3, Math.round(n * 0.15)));
+  const columnTotals = columns.map((idxs) => ({
+    contentHeight: idxs.reduce((sum, i) => sum + naturalHeights[i], 0),
+    gapsTotal: Math.max(0, idxs.length - 1) * gap,
+  }));
+  const nonEmpty = columnTotals.filter((t) => t.contentHeight > 0);
+  const targetTotal = nonEmpty.length
+    ? nonEmpty.reduce((sum, t) => sum + t.contentHeight + t.gapsTotal, 0) / nonEmpty.length
+    : 0;
+
+  const placements = [];
+  columns.forEach((idxs, col) => {
+    const { contentHeight, gapsTotal } = columnTotals[col];
+    const scale = contentHeight > 0 ? Math.max(0.01, (targetTotal - gapsTotal) / contentHeight) : 1;
+    let y = 0;
+    idxs.forEach((photoIdx) => {
+      const height = Math.max(1, Math.round(naturalHeights[photoIdx] * scale));
+      placements.push({ photoIdx, x: col * (columnWidth + gap), y, height });
+      y += height + gap;
+    });
+  });
+
+  return placements;
 }
 
 class PuzzleAssemblyController {
@@ -1102,15 +1139,16 @@ class PuzzleAssemblyController {
     this.root = rootEl;
     this.group = null;
     this.pieces = [];
-    this.scrollBatch = [];
     this.layout = null;
     this.hasPlayed = false;
-    this.heroTl = null;
+    this.assembled = false;
     this.assembleTl = null;
     this.lightboxIndex = 0;
+    this._buildToken = 0;
     this._resizeRaf = null;
     this._onResizeBound = () => this._onResize();
     this._bindLightbox();
+    this._bindStageClick();
   }
 
   // group.photosを元にDOM/SVG defsを毎回作り直し、stage1から再生できる状態に戻す
@@ -1120,9 +1158,8 @@ class PuzzleAssemblyController {
   }
 
   reset() {
-    if (this.heroTl) { this.heroTl.kill(); this.heroTl = null; }
+    this._buildToken++;
     if (this.assembleTl) {
-      if (this.assembleTl.scrollTrigger) this.assembleTl.scrollTrigger.kill();
       this.assembleTl.kill();
       this.assembleTl = null;
     }
@@ -1130,8 +1167,9 @@ class PuzzleAssemblyController {
 
     document.getElementById('puzzleMosaic').innerHTML = '';
     document.getElementById('puzzleMosaic').style.transform = '';
-    const defs = document.getElementById('puzzleClipDefs');
-    if (defs) defs.parentNode.remove();
+
+    const prompt = document.getElementById('puzzleGatherPrompt');
+    if (prompt) prompt.classList.add('hidden');
 
     const msg = document.getElementById('puzzleEndingMessage');
     msg.classList.add('hidden');
@@ -1139,141 +1177,104 @@ class PuzzleAssemblyController {
     msg.style.transform = '';
 
     this.pieces = [];
-    this.scrollBatch = [];
     this.layout = null;
     this.hasPlayed = false;
+    this.assembled = false;
     this.closeLightbox();
   }
 
-  // グループページを開いた直後、レイアウト確定後にピースを構築して再生する
+  // グループページを開いた直後、レイアウト確定後にピースを構築し「集める」ボタン待機状態にする
   start() {
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      this._buildPieces();
+    requestAnimationFrame(() => requestAnimationFrame(async () => {
+      await this._buildPieces();
       window.removeEventListener('resize', this._onResizeBound);
       window.addEventListener('resize', this._onResizeBound);
 
-      if (!window.gsap || !window.ScrollTrigger || prefersReducedMotion()) {
+      if (!window.gsap || prefersReducedMotion()) {
         this._setFinalStateInstant();
         return;
       }
-      if (this.hasPlayed) {
-        ScrollTrigger.refresh();
-        return;
-      }
+      if (this.hasPlayed) return;
       this.hasPlayed = true;
-      this._playHeroArrival();
-      if (this.scrollBatch.length) {
-        this._setupAssembleScrollTrigger();
-      } else {
-        this.heroTl.eventCallback('onComplete', () => this._playCompletion());
-      }
+      this._showGatherPrompt();
     }));
   }
 
   // オーバーレイを閉じるときは実行中のアニメーションだけ止める（DOMの再構築はrender()側で行う）
   stop() {
-    if (this.heroTl) this.heroTl.pause();
-    if (this.assembleTl && this.assembleTl.scrollTrigger) this.assembleTl.scrollTrigger.disable();
+    if (this.assembleTl) this.assembleTl.pause();
     window.removeEventListener('resize', this._onResizeBound);
     this.closeLightbox();
   }
 
   _onResize() {
     if (this._resizeRaf) cancelAnimationFrame(this._resizeRaf);
-    this._resizeRaf = requestAnimationFrame(() => {
+    this._resizeRaf = requestAnimationFrame(async () => {
       if (!this.group) return;
       const group = this.group;
       this.reset();
       this.group = group;
-      this._buildPieces();
+      await this._buildPieces();
       this.hasPlayed = true;
       this._setFinalStateInstant();
     });
   }
 
-  _buildPieces() {
+  async _buildPieces() {
     const stage = document.getElementById('puzzleStage');
     const mosaic = document.getElementById('puzzleMosaic');
     const photos = (this.group && this.group.photos) || [];
     const n = photos.length;
     if (!n) return;
 
+    const token = ++this._buildToken;
     const containerW = stage.clientWidth || window.innerWidth;
-    const { cols, rows } = computePuzzleLayout(n, containerW);
-    const gap = 0;
-    const available = Math.min(containerW, 960) - (cols - 1) * gap;
-    const cellSize = Math.max(56, Math.floor(available / cols));
-    const mosaicW = cellSize * cols + (cols - 1) * gap;
-    const mosaicH = cellSize * rows + (rows - 1) * gap;
+    const gap = 4;
+    const columnCount = computeMasonryColumns(containerW);
+    const available = Math.min(containerW, 960) - (columnCount - 1) * gap;
+    const columnWidth = Math.max(64, Math.floor(available / columnCount));
+    const placements = await planPuzzleMasonryLayout(photos, columnCount, columnWidth, gap);
+    if (token !== this._buildToken) return;
+
+    const mosaicW = columnCount * columnWidth + (columnCount - 1) * gap;
+    const mosaicH = Math.max(...placements.map((p) => p.y + p.height));
 
     mosaic.style.width = mosaicW + 'px';
     mosaic.style.height = mosaicH + 'px';
     stage.style.minHeight = Math.max(480, mosaicH + 200) + 'px';
 
-    const { edgeH, edgeV } = generatePuzzleEdges(rows, cols);
-
-    const svgNS = 'http://www.w3.org/2000/svg';
-    const svg = document.createElementNS(svgNS, 'svg');
-    svg.setAttribute('width', '0');
-    svg.setAttribute('height', '0');
-    svg.style.position = 'absolute';
-    svg.setAttribute('aria-hidden', 'true');
-    const defs = document.createElementNS(svgNS, 'defs');
-    defs.id = 'puzzleClipDefs';
-    svg.appendChild(defs);
-    stage.appendChild(svg);
-
-    const heroReserve = puzzleHeroCount(n);
     this.pieces = [];
-    let idx = 0;
-    for (let r = 0; r < rows; r++) {
-      for (let c = 0; c < cols; c++) {
-        if (idx >= n) break;
-        const clipId = 'puzzlePieceClip-' + r + '-' + c;
-        const clipPath = document.createElementNS(svgNS, 'clipPath');
-        clipPath.id = clipId;
-        clipPath.setAttribute('clipPathUnits', 'objectBoundingBox');
-        const path = document.createElementNS(svgNS, 'path');
-        path.setAttribute('d', buildJigsawPathD(r, c, rows, cols, edgeH, edgeV));
-        clipPath.appendChild(path);
-        defs.appendChild(clipPath);
+    placements.forEach(({ photoIdx, x, y, height }) => {
+      const el = document.createElement('div');
+      el.className = 'puzzle-piece';
+      el.style.width = columnWidth + 'px';
+      el.style.height = height + 'px';
 
-        const el = document.createElement('div');
-        el.className = 'puzzle-piece';
-        el.style.width = cellSize + 'px';
-        el.style.height = cellSize + 'px';
+      const clip = document.createElement('div');
+      clip.className = 'puzzle-piece__clip';
 
-        const clip = document.createElement('div');
-        clip.className = 'puzzle-piece__clip';
-        clip.style.clipPath = `url(#${clipId})`;
+      const img = document.createElement('img');
+      img.className = 'puzzle-piece__img';
+      img.src = photos[photoIdx];
+      img.alt = this.group.name || '';
+      img.loading = 'lazy';
+      img.decoding = 'async';
 
-        const img = document.createElement('img');
-        img.className = 'puzzle-piece__img';
-        img.src = photos[idx];
-        img.alt = this.group.name || '';
-        img.loading = idx < heroReserve ? 'eager' : 'lazy';
-        img.decoding = 'async';
+      clip.appendChild(img);
+      el.appendChild(clip);
+      mosaic.appendChild(el);
 
-        clip.appendChild(img);
-        el.appendChild(clip);
-        mosaic.appendChild(el);
+      el.addEventListener('click', () => this.openLightbox(photoIdx));
 
-        const pieceIndex = idx;
-        el.addEventListener('click', () => this.openLightbox(pieceIndex));
+      this.pieces.push({
+        el,
+        targetX: x,
+        targetY: y,
+        entryPoint: null,
+      });
+    });
 
-        this.pieces.push({
-          el,
-          row: r,
-          col: c,
-          targetX: c * (cellSize + gap),
-          targetY: r * (cellSize + gap),
-          entryPoint: null,
-        });
-        idx++;
-      }
-    }
-
-    this.layout = { rows, cols, cellSize, mosaicW, mosaicH };
+    this.layout = { columnCount, columnWidth, mosaicW, mosaicH };
   }
 
   // ステージ矩形とモザイク矩形の実測差から、画面外の飛来開始点をモザイク基準の座標で求める
@@ -1334,54 +1335,45 @@ class PuzzleAssemblyController {
     return tl;
   }
 
-  // Hero表示: 少し間を置いてから一部のピースだけが自動で飛来する（クリック不要、完成させない）
-  _playHeroArrival() {
+  // クリック待ち: 全ピースを非表示にし「Click to gather our memories」を表示する
+  _showGatherPrompt() {
+    this.pieces.forEach((piece) => { piece.el.style.opacity = '0'; });
+    const prompt = document.getElementById('puzzleGatherPrompt');
+    if (prompt) prompt.classList.remove('hidden');
+  }
+
+  // 高校グループ(photoStory)のstage1クリックと同じパターン:
+  // ステージ自体をクリック領域にし、初回クリックでのみ組み上げを開始する
+  _bindStageClick() {
+    const stage = document.getElementById('puzzleStage');
+    if (!stage) return;
+    stage.addEventListener('click', () => {
+      if (this.assembled) return;
+      this._playAssemble();
+    });
+  }
+
+  // クリックで全ピースをランダムな順・方向から、ゆったりとしたテンポで飛来させ、正しい升目へ収束させる。最後の1枚だけ強調する。
+  _playAssemble() {
+    this.assembled = true;
+    const prompt = document.getElementById('puzzleGatherPrompt');
+    if (prompt) prompt.classList.add('hidden');
+
     const shuffled = [...this.pieces];
     for (let i = shuffled.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
-    const heroCount = puzzleHeroCount(this.pieces.length);
-    const heroBatch = shuffled.slice(0, heroCount);
-    this.scrollBatch = shuffled.slice(heroCount);
 
-    this.pieces.forEach((piece) => { piece.el.style.opacity = '0'; });
-    heroBatch.forEach((piece) => { piece.entryPoint = this._randomEntryPoint(); });
-
-    this.heroTl = gsap.timeline({ delay: gsap.utils.random(0.6, 0.9) });
-    heroBatch.forEach((piece, i) => {
-      const tl = this._flyPieceIn(piece, { duration: gsap.utils.random(1.3, 2.0), ease: 'power3.out' });
-      this.heroTl.add(tl, gsap.utils.random(0, 0.5) + i * 0.12);
-    });
-  }
-
-  // 残りのピースをスクロール量に応じて正しい升目へ収束させる。最後の1枚だけ強調する。
-  // ピース自体はstage(モザイクの器)の中にいるため、pinの対象は"stageの後に置いた空のゾーン"ではなく
-  // stage自身にする(ピン対象の外にある要素は通常通りスクロールで流れ去ってしまうため)。
-  _setupAssembleScrollTrigger() {
-    const stage = document.getElementById('puzzleStage');
-    const pxPerPiece = 60;
-    const pinLen = Math.max(600, this.scrollBatch.length * pxPerPiece);
-
-    this.assembleTl = gsap.timeline({
-      scrollTrigger: {
-        trigger: stage,
-        scroller: '#groupPage',
-        start: 'top top',
-        end: '+=' + pinLen,
-        scrub: 1,
-        pin: true,
-        pinSpacing: true,
-        onLeave: () => this._playCompletion(),
-      },
-    });
-
-    this.scrollBatch.forEach((piece, i) => {
-      const isLast = i === this.scrollBatch.length - 1;
+    const stagger = 0.09;
+    this.assembleTl = gsap.timeline({ onComplete: () => this._playCompletion() });
+    shuffled.forEach((piece, i) => {
+      const isLast = i === shuffled.length - 1;
       piece.entryPoint = this._randomEntryPoint();
-      const tl = this._flyPieceIn(piece, { duration: 1, ease: isLast ? 'back.out(1.7)' : 'power2.out' });
+      const duration = gsap.utils.random(1.4, 1.9);
+      const tl = this._flyPieceIn(piece, { duration, ease: isLast ? 'back.out(1.7)' : 'power2.out' });
       if (isLast) tl.call(() => this._playFinalSnap(piece));
-      this.assembleTl.add(tl, i / this.scrollBatch.length);
+      this.assembleTl.add(tl, i * stagger);
     });
   }
 
@@ -1405,6 +1397,9 @@ class PuzzleAssemblyController {
 
   // reduced-motion時、またはGSAP未読込時は即座に完成形を表示する
   _setFinalStateInstant() {
+    this.assembled = true;
+    const prompt = document.getElementById('puzzleGatherPrompt');
+    if (prompt) prompt.classList.add('hidden');
     this.pieces.forEach((piece) => {
       if (window.gsap) {
         gsap.set(piece.el, { x: piece.targetX, y: piece.targetY, rotation: 0, scale: 1, opacity: 1 });
@@ -1537,11 +1532,14 @@ function openGroupPage(group) {
 
     photosEl.innerHTML = '';
     group.photos.forEach(src => {
+      const frame = document.createElement('div');
+      frame.className = 'group-page__photo-frame';
       const img = document.createElement('img');
       img.src = src;
       img.alt = group.name;
       img.className = 'group-page__photo';
-      photosEl.appendChild(img);
+      frame.appendChild(img);
+      photosEl.appendChild(frame);
     });
 
     msgEl.textContent = group.message;

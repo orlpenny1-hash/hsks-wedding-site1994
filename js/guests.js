@@ -92,39 +92,40 @@ const GROUPS = {
     passphrase: "NUPALS",
     name: "TODO: 表示名未定", // TODO: 表示名未定
     customHero: "puzzle",
+    // ファイル名はスマホ表示(4列)でのマソンリー配置セル番号(列A〜D・上から1,2,3...)に対応
     photos: [
-      "images/groupLP/NGTYKD/24A726AD-B09C-4F36-8DAE-364866D4FD10.jpg",
-      "images/groupLP/NGTYKD/4D909125-2AEB-4986-9D6A-04B49E8434A3.jpg",
-      "images/groupLP/NGTYKD/LINE_ALBUM_キャンプ🏕_260707_1.jpg",
-      "images/groupLP/NGTYKD/LINE_ALBUM_キャンプ🏕_260707_2.jpg",
-      "images/groupLP/NGTYKD/LINE_ALBUM_キャンプ🏕_260707_3.jpg",
-      "images/groupLP/NGTYKD/LINE_ALBUM_キャンプ🏕_260707_4.jpg",
-      "images/groupLP/NGTYKD/LINE_ALBUM_ホワイトコートセレモニー_260707_1.jpg",
-      "images/groupLP/NGTYKD/LINE_ALBUM_卒アル_260708_1.jpg",
-      "images/groupLP/NGTYKD/LINE_ALBUM_卒アル撮影_260707_1.jpg",
-      "images/groupLP/NGTYKD/LINE_ALBUM_斑尾高原 どんぐり村_260707_1.jpg",
-      "images/groupLP/NGTYKD/LINE_ALBUM_斑尾高原 どんぐり村_260707_2.jpg",
-      "images/groupLP/NGTYKD/LINE_ALBUM_斑尾高原 どんぐり村_260707_3.jpg",
-      "images/groupLP/NGTYKD/LINE_ALBUM_斑尾高原 どんぐり村_260707_4.jpg",
-      "images/groupLP/NGTYKD/LINE_ALBUM_斑尾高原 どんぐり村_260707_5.jpg",
-      "images/groupLP/NGTYKD/LINE_ALBUM_斑尾高原 どんぐり村_260707_6.jpg",
-      "images/groupLP/NGTYKD/LINE_ALBUM_斑尾高原 どんぐり村_260707_7.jpg",
-      "images/groupLP/NGTYKD/LINE_ALBUM_斑尾高原 どんぐり村_260707_8.jpg",
-      "images/groupLP/NGTYKD/LINE_ALBUM_斑尾高原 どんぐり村_260708_1.jpg",
-      "images/groupLP/NGTYKD/LINE_ALBUM_斑尾高原 どんぐり村_260708_2.jpg",
-      "images/groupLP/NGTYKD/LINE_ALBUM_斑尾高原 どんぐり村_260708_3.jpg",
-      "images/groupLP/NGTYKD/LINE_ALBUM_長岡花火_260707_1.jpg",
-      "images/groupLP/NGTYKD/LINE_ALBUM_長岡花火_260708_1.jpg",
-      "images/groupLP/NGTYKD/LINE_ALBUM_長岡花火_260708_2.jpg",
-      "images/groupLP/NGTYKD/S__91602956_0.jpg",
-      "images/groupLP/NGTYKD/S__91602957_0.jpg",
-      "images/groupLP/NGTYKD/S__91602958_0.jpg",
-      "images/groupLP/NGTYKD/S__91602959_0.jpg",
-      "images/groupLP/NGTYKD/S__91602963_0.jpg",
-      "images/groupLP/NGTYKD/S__91602964_0.jpg",
-      "images/groupLP/NGTYKD/S__91602965_0.jpg",
-      "images/groupLP/NGTYKD/S__91602966_0.jpg",
-      "images/groupLP/NGTYKD/S__91602967_0.jpg",
+      "images/groupLP/NGTYKD/A1.jpg",
+      "images/groupLP/NGTYKD/D6.jpg",
+      "images/groupLP/NGTYKD/B3.jpg",
+      "images/groupLP/NGTYKD/B2.jpg",
+      "images/groupLP/NGTYKD/C9.jpg",
+      "images/groupLP/NGTYKD/B4.jpg",
+      "images/groupLP/NGTYKD/D5.jpg",
+      "images/groupLP/NGTYKD/A7.jpg",
+      "images/groupLP/NGTYKD/C7.jpg",
+      "images/groupLP/NGTYKD/A8.jpg",
+      "images/groupLP/NGTYKD/C2.jpg",
+      "images/groupLP/NGTYKD/D3.jpg",
+      "images/groupLP/NGTYKD/B6.jpg",
+      "images/groupLP/NGTYKD/B1.jpg",
+      "images/groupLP/NGTYKD/A3.jpg",
+      "images/groupLP/NGTYKD/C3.jpg",
+      "images/groupLP/NGTYKD/A2.jpg",
+      "images/groupLP/NGTYKD/A6.jpg",
+      "images/groupLP/NGTYKD/C1.jpg",
+      "images/groupLP/NGTYKD/C6.jpg",
+      "images/groupLP/NGTYKD/D7.jpg",
+      "images/groupLP/NGTYKD/C4.jpg",
+      "images/groupLP/NGTYKD/A5.jpg",
+      "images/groupLP/NGTYKD/D2.jpg",
+      "images/groupLP/NGTYKD/A4.jpg",
+      "images/groupLP/NGTYKD/B5.jpg",
+      "images/groupLP/NGTYKD/D4.jpg",
+      "images/groupLP/NGTYKD/C5.jpg",
+      "images/groupLP/NGTYKD/C8.jpg",
+      "images/groupLP/NGTYKD/D8.jpg",
+      "images/groupLP/NGTYKD/B7.jpg",
+      "images/groupLP/NGTYKD/D1.jpg",
     ],
     message: "TODO: 完成後メッセージ未定", // TODO: メッセージ未定
     guests: {
@@ -140,6 +141,19 @@ const GROUPS = {
       // TODO: 写真追加予定
     ],
     message: "", // TODO: メッセージ未定
+    guests: {
+      // TODO: ゲスト情報を追加予定
+    }
+  },
+
+  // ---- 新婦グループ: たまめん ----
+  "GROUP_TAMAMEN": {
+    passphrase: "たまめん",
+    name: "たまめん",
+    photos: [
+      "images/groupLP/NK/A0ECDF97-358C-405E-A01E-45CE3B169A0D.jpg",
+    ],
+    message: "TODO: 完成後メッセージ未定", // TODO: メッセージ未定
     guests: {
       // TODO: ゲスト情報を追加予定
     }
