@@ -114,7 +114,7 @@
 
   <!-- ========== 4. COUPLE SECTION ========== -->
   <section id="couple" class="section section--couple">
-    <div class="couple__bg" style="background-image: url('images/LINE_ALBUM_20260602%E5%96%84%E5%85%89%E5%AF%BA%E5%89%8D%E6%92%AE%E3%82%8A_260615_2.jpg')"></div>
+    <div class="couple__bg" style="background-image: url('images/LINE_ALBUM_20260602%E5%96%84%E5%85%89%E5%AF%BA%E5%89%8D%E6%92%AE%E3%82%8A_260618_2.jpg')"></div>
     <div class="couple__overlay"></div>
 
     <!-- 上帯 -->
@@ -182,7 +182,7 @@
 
   <!-- ========== 6. SECRET CODE ========== -->
   <section id="secret" class="section section--secret">
-    <div class="secret__bg" style="background-image: url('images/LINE_ALBUM_2023113.4%E5%A4%A7%E9%98%AA%E6%97%85%E8%A1%8C_260615_1.jpg')"></div>
+    <div class="secret__bg" style="background-image: url('images/groomandbride/LINE_ALBUM_2023113.4%E5%A4%A7%E9%98%AA%E6%97%85%E8%A1%8C_260615_1.jpg')"></div>
     <div class="secret__overlay"></div>
     <div class="container">
       <div class="secret__content">
@@ -215,7 +215,7 @@
     <div class="group-page__content">
       <p class="group-page__eyebrow">Welcome</p>
       <h2 class="group-page__name" id="groupName"></h2>
-      <p class="group-page__note">ページの一番下に席札の番号入力欄があります</p>
+      <p class="group-page__note" id="groupNote">ページの一番下に席札の番号入力欄があります</p>
       <div class="group-page__divider"></div>
       <div class="group-page__photos" id="groupPhotos"></div>
       <div class="jhs-hero hidden" id="jhsHero">
@@ -274,25 +274,48 @@
         </div>
       </div>
 
-      <div class="group-page__message" id="groupMessage"></div>
-      <div class="scroll-indicator" aria-hidden="true"><span></span></div>
-      <div class="group-page__separator"></div>
-      <p class="group-page__hint">席札の番号を入力してください</p>
-      <div class="group-page__form">
-        <input
-          type="text"
-          id="guestNumberInput"
-          class="group-page__input"
-          placeholder="0000"
-          maxlength="4"
-          pattern="[0-9]*"
-          inputmode="numeric"
-          autocomplete="off"
-          autocorrect="off"
-        >
-        <button class="group-page__btn" onclick="submitGuestNumber()">OPEN</button>
+      <div class="family-hero hidden" id="familyHero">
+        <div class="family-hero__stage" id="familyStage">
+          <div class="family-hero__main-frame" id="familyMainFrame">
+            <img class="family-hero__main" id="familyHeroImage" src="" alt="">
+          </div>
+        </div>
+        <div class="family-hero__prompt-wrap" id="familyPrompt">
+          <span class="family-hero__pulse-ring" aria-hidden="true"></span>
+          <p class="family-hero__prompt">🐾 家族写真をクリック</p>
+        </div>
+
+        <div class="photo-story__lightbox hidden" id="familyLightbox" role="dialog" aria-modal="true" aria-label="写真ビューア">
+          <div class="photo-story__lightbox-backdrop" id="familyLightboxBackdrop"></div>
+          <button class="photo-story__lightbox-close" id="familyLightboxClose">CLOSE</button>
+          <button class="photo-story__lightbox-nav photo-story__lightbox-nav--prev" id="familyLightboxPrev" aria-label="前の写真">‹</button>
+          <img class="photo-story__lightbox-img" id="familyLightboxImg" src="" alt="">
+          <button class="photo-story__lightbox-nav photo-story__lightbox-nav--next" id="familyLightboxNext" aria-label="次の写真">›</button>
+          <p class="photo-story__lightbox-counter" id="familyLightboxCounter"></p>
+        </div>
       </div>
-      <p class="group-page__error" id="groupError" aria-live="polite"></p>
+
+      <div class="group-page__message" id="groupMessage"></div>
+      <div class="group-page__number-section" id="groupNumberSection">
+        <div class="scroll-indicator" aria-hidden="true"><span></span></div>
+        <div class="group-page__separator"></div>
+        <p class="group-page__hint">席札の番号を入力してください</p>
+        <div class="group-page__form">
+          <input
+            type="text"
+            id="guestNumberInput"
+            class="group-page__input"
+            placeholder="0000"
+            maxlength="4"
+            pattern="[0-9]*"
+            inputmode="numeric"
+            autocomplete="off"
+            autocorrect="off"
+          >
+          <button class="group-page__btn" onclick="submitGuestNumber()">OPEN</button>
+        </div>
+        <p class="group-page__error" id="groupError" aria-live="polite"></p>
+      </div>
     </div>
   </div>
 

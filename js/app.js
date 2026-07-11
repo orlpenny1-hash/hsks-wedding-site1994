@@ -831,6 +831,7 @@ class PhotoStoryController {
 
     tiles.forEach((tile) => gallery.appendChild(tile));
     gallery.classList.add('is-active');
+    this._balanceGalleryColumns(gallery, tiles);
 
     if (window.gsap && window.Flip && state) {
       gsap.set(tiles, { clearProps: 'transform,opacity' });
@@ -847,6 +848,63 @@ class PhotoStoryController {
       });
     } else {
       this._setupEndingScrollTrigger();
+    }
+  }
+
+  // grid-auto-flow:denseだけだと列ごとの合計高さがバラつき下端が揃わないため、
+  // 「一番低い列に次のタイルを詰める」擬似Masonryで明示的にgrid-column/rowを割り当てる。
+  // 最後に、他のタイルと重ならず安全な列だけ最終タイルを下端まで伸ばして高さを完全に揃える。
+  _balanceGalleryColumns(gallery, tiles) {
+    const colCount = getComputedStyle(gallery).gridTemplateColumns.split(' ').filter(Boolean).length;
+    if (!colCount || !tiles.length) return;
+
+    const colHeights = new Array(colCount).fill(0);
+    const lastTileInCol = new Array(colCount).fill(null);
+    const meta = new Map();
+
+    tiles.forEach((tile) => {
+      const span = tile.classList.contains('photo-story__tile--featured') && colCount >= 2 ? 2 : 1;
+      let bestCol = 0;
+      let bestHeight = Infinity;
+      for (let c = 0; c <= colCount - span; c++) {
+        let h = colHeights[c];
+        for (let k = 1; k < span; k++) h = Math.max(h, colHeights[c + k]);
+        if (h < bestHeight) { bestHeight = h; bestCol = c; }
+      }
+      const rowStart = bestHeight;
+      tile.style.gridColumn = (bestCol + 1) + ' / span ' + span;
+      tile.style.gridRow = (rowStart + 1) + ' / span ' + span;
+      meta.set(tile, { col: bestCol, span, rowStart });
+      for (let k = 0; k < span; k++) {
+        colHeights[bestCol + k] = rowStart + span;
+        lastTileInCol[bestCol + k] = tile;
+      }
+    });
+
+    const maxHeight = Math.max(...colHeights);
+    tiles.forEach((tile) => {
+      const m = meta.get(tile);
+      let isSoleOwner = true;
+      for (let k = 0; k < m.span; k++) {
+        if (lastTileInCol[m.col + k] !== tile) { isSoleOwner = false; break; }
+      }
+      if (!isSoleOwner) return;
+      const newSpan = maxHeight - m.rowStart;
+      if (newSpan > m.span) {
+        tile.style.gridRow = (m.rowStart + 1) + ' / span ' + newSpan;
+        for (let k = 0; k < m.span; k++) colHeights[m.col + k] = maxHeight;
+      }
+    });
+
+    // featuredタイルが隣の列と競合して伸ばせない列は、透明なフィラーで下端まで埋めて完全に揃える
+    for (let c = 0; c < colCount; c++) {
+      if (colHeights[c] >= maxHeight) continue;
+      const filler = document.createElement('div');
+      filler.className = 'photo-story__tile-filler';
+      filler.setAttribute('aria-hidden', 'true');
+      filler.style.gridColumn = (c + 1) + ' / span 1';
+      filler.style.gridRow = (colHeights[c] + 1) + ' / span ' + (maxHeight - colHeights[c]);
+      gallery.appendChild(filler);
     }
   }
 
@@ -880,23 +938,35 @@ class PhotoStoryController {
         scroller: '#groupPage',
         start: 'top top',
         end: 'bottom bottom',
-        scrub: 1,
+        // scrubを大きめにして、スクロールの動きにピタッと追従させず
+        // 少し遅れて滑らかに追いつくような、余韻のある戻り方にする
+        scrub: 1.6,
         pin: true,
         pinSpacing: true,
       },
     });
 
-    // 収束先(=heroImageと同じ写真)との相対距離を一度だけ計算し、外側のタイルほど先に閉じるようにする
-    this.tiles.forEach((tile, i) => {
+    // 収束先(=heroImageと同じ写真)との相対距離を一度だけ計算する。
+    // 最初のクリック(_playScatter)は順番に散っていくが、戻りは「ランダムな順で吸い寄せられる」
+    // 逆再生っぽい雰囲気にするため、収束の着地順だけシャッフルする。
+    const order = [...this.tiles];
+    for (let i = order.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [order[i], order[j]] = [order[j], order[i]];
+    }
+    order.forEach((tile, i) => {
       const r = tile.getBoundingClientRect();
       const dx = anchorCx - (r.left + r.width / 2);
       const dy = anchorCy - (r.top + r.height / 2);
-      this.endingTl.to(tile, { x: dx, y: dy, scale: 0.12, opacity: 0, ease: 'none' }, i * 0.01);
+      this.endingTl.to(tile, { x: dx, y: dy, scale: 0.12, opacity: 0, ease: 'sine.inOut' }, i * 0.025);
     });
 
+    // 集合写真は早い段階からうっすら現れ始め、タイルが集まってくるのに合わせて
+    // ゆっくり・直線的に(ease:none)濃くなっていく。スケールの落ち着きだけ後半で軽く効かせる。
     this.endingTl
-      .to(anchor, { opacity: 1, scale: 1, ease: 'none' }, 0.55)
-      .to(message, { opacity: 1, y: 0, ease: 'none' }, 0.75);
+      .to(anchor, { opacity: 1, duration: 1.1, ease: 'none' }, 0.15)
+      .to(anchor, { scale: 1, duration: 0.6, ease: 'power2.out' }, 0.65)
+      .to(message, { opacity: 1, y: 0, ease: 'sine.out' }, 1.3);
   }
 
   // ---- ライトボックス ----
@@ -1487,6 +1557,203 @@ function stopPuzzleAnimation() {
   if (puzzleAssemblyController) puzzleAssemblyController.stop();
 }
 
+// ---- 新郎親族グループ専用: 家族写真クリックで愛犬たちがCSS Gridのマス目を埋める ----
+// 家族写真と犬の写真を同じGridコンテナの子要素にし、家族写真を中央のセル群に
+// 明示配置した上で、犬の写真をDOM順の自動配置(grid-auto-flow: row dense)に任せる。
+// Grid自体が「1マスに1枚」しか置かない構造なので、座標計算による重なりが原理的に起こらない。
+class FamilyDogScatterController {
+  constructor() {
+    this.group = null;
+    this.dogEls = [];
+    this.revealed = false;
+    this.lightboxIndex = 0;
+    this._bindFrameClick();
+    this._bindLightbox();
+  }
+
+  // グループページを開くたびにGridを組み直し、集約待機状態(不可視)に戻す
+  render(group) {
+    this.reset();
+    this.group = group;
+
+    const stage = document.getElementById('familyStage');
+    const frame = document.getElementById('familyMainFrame');
+    const photos = (group && group.photos) || [];
+
+    const gap = 4;
+    const cellTarget = 64;
+    const stageWidth = stage.clientWidth || 320;
+    const cols = Math.max(4, Math.round((stageWidth + gap) / (cellTarget + gap)));
+    const cellSize = (stageWidth - gap * (cols - 1)) / cols;
+    const photoSpan = Math.max(3, Math.round(cols * 0.36));
+    const rows = Math.max(photoSpan, Math.ceil((photos.length + photoSpan * photoSpan) / cols));
+    const colStart = Math.floor((cols - photoSpan) / 2) + 1;
+    const rowStart = Math.floor((rows - photoSpan) / 2) + 1;
+
+    stage.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+    stage.style.gridAutoRows = cellSize + 'px';
+    stage.style.gap = gap + 'px';
+    frame.style.gridColumn = `${colStart} / span ${photoSpan}`;
+    frame.style.gridRow = `${rowStart} / span ${photoSpan}`;
+
+    this.dogEls = photos.map((src, i) => {
+      const img = document.createElement('img');
+      img.className = 'family-hero__dog';
+      img.src = src;
+      img.alt = '';
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      img.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.openLightbox(i);
+      });
+      stage.appendChild(img);
+      return img;
+    });
+
+    if (window.gsap) {
+      gsap.set(this.dogEls, { scale: 0.4, opacity: 0 });
+    }
+  }
+
+  reset() {
+    if (window.gsap && this.dogEls.length) gsap.killTweensOf(this.dogEls);
+    this.dogEls.forEach((img) => img.remove());
+    this.dogEls = [];
+    this.revealed = false;
+    const prompt = document.getElementById('familyPrompt');
+    if (prompt) prompt.classList.remove('hidden');
+  }
+
+  stop() {
+    if (window.gsap && this.dogEls.length) gsap.killTweensOf(this.dogEls);
+    this.closeLightbox();
+  }
+
+  _bindFrameClick() {
+    const frame = document.getElementById('familyMainFrame');
+    if (!frame) return;
+    frame.addEventListener('click', () => {
+      if (this.revealed) this._hide();
+      else this._reveal();
+    });
+  }
+
+  // クリックで全犬をその場(Gridで確定済みのセル)にふわっと表示する
+  _reveal() {
+    if (!this.dogEls.length) return;
+    this.revealed = true;
+    const prompt = document.getElementById('familyPrompt');
+    if (prompt) prompt.classList.add('hidden');
+
+    if (!window.gsap || prefersReducedMotion()) {
+      this.dogEls.forEach((img) => { img.style.opacity = '1'; });
+      return;
+    }
+
+    this.dogEls.forEach((img, i) => {
+      gsap.killTweensOf(img);
+      gsap.to(img, {
+        scale: 1,
+        opacity: 1,
+        duration: 0.5,
+        delay: i * 0.012,
+        ease: 'back.out(1.5)',
+      });
+    });
+  }
+
+  // 再クリックでその場にフェードアウトさせ、プロンプトを再表示する
+  _hide() {
+    if (!this.dogEls.length) return;
+    this.revealed = false;
+
+    if (!window.gsap || prefersReducedMotion()) {
+      this.dogEls.forEach((img) => { img.style.opacity = '0'; });
+    } else {
+      this.dogEls.forEach((img, i) => {
+        gsap.killTweensOf(img);
+        gsap.to(img, {
+          scale: 0.4,
+          opacity: 0,
+          duration: 0.35,
+          delay: i * 0.006,
+          ease: 'power2.in',
+        });
+      });
+    }
+
+    const prompt = document.getElementById('familyPrompt');
+    if (prompt) prompt.classList.remove('hidden');
+  }
+
+  // ---- ライトボックス(犬写真クリックで拡大表示) ----
+  openLightbox(index) {
+    this.lightboxIndex = index;
+    this._renderLightbox();
+    document.getElementById('familyLightbox').classList.remove('hidden');
+  }
+
+  closeLightbox() {
+    const lb = document.getElementById('familyLightbox');
+    if (lb) lb.classList.add('hidden');
+  }
+
+  isLightboxOpen() {
+    const lb = document.getElementById('familyLightbox');
+    return !!lb && !lb.classList.contains('hidden');
+  }
+
+  _renderLightbox() {
+    const photos = (this.group && this.group.photos) || [];
+    if (!photos.length) return;
+    document.getElementById('familyLightboxImg').src = photos[this.lightboxIndex];
+    document.getElementById('familyLightboxImg').alt = (this.group && this.group.name) || '';
+    document.getElementById('familyLightboxCounter').textContent = (this.lightboxIndex + 1) + ' / ' + photos.length;
+  }
+
+  prevLightbox() {
+    const photos = (this.group && this.group.photos) || [];
+    if (!photos.length) return;
+    this.lightboxIndex = (this.lightboxIndex - 1 + photos.length) % photos.length;
+    this._renderLightbox();
+  }
+
+  nextLightbox() {
+    const photos = (this.group && this.group.photos) || [];
+    if (!photos.length) return;
+    this.lightboxIndex = (this.lightboxIndex + 1) % photos.length;
+    this._renderLightbox();
+  }
+
+  _bindLightbox() {
+    document.getElementById('familyLightboxClose').addEventListener('click', () => this.closeLightbox());
+    document.getElementById('familyLightboxBackdrop').addEventListener('click', () => this.closeLightbox());
+    document.getElementById('familyLightboxPrev').addEventListener('click', () => this.prevLightbox());
+    document.getElementById('familyLightboxNext').addEventListener('click', () => this.nextLightbox());
+
+    const lb = document.getElementById('familyLightbox');
+    let touchStartX = 0;
+    lb.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; }, { passive: true });
+    lb.addEventListener('touchend', (e) => {
+      const diff = touchStartX - e.changedTouches[0].clientX;
+      if (Math.abs(diff) > 40) { diff > 0 ? this.nextLightbox() : this.prevLightbox(); }
+    }, { passive: true });
+  }
+}
+
+let familyDogController = null;
+
+// グループページを開いたときにだけDOMを構築する（初期ロードに影響しないよう遅延初期化）
+function renderFamilyFrame(group) {
+  if (!familyDogController) familyDogController = new FamilyDogScatterController();
+  familyDogController.render(group);
+}
+
+function stopFamilyFrameAnimation() {
+  if (familyDogController) familyDogController.stop();
+}
+
 // ---- グループページ開閉（ステップ2） ----
 function openGroupPage(group) {
   document.getElementById('groupName').textContent = group.name;
@@ -1494,18 +1761,25 @@ function openGroupPage(group) {
   const heroEl = document.getElementById('jhsHero');
   const photoStoryEl = document.getElementById('photoStoryHero');
   const puzzleEl = document.getElementById('puzzleHero');
+  const familyEl = document.getElementById('familyHero');
   const photosEl = document.getElementById('groupPhotos');
   const msgEl = document.getElementById('groupMessage');
   const contentEl = document.querySelector('.group-page__content');
+  const numberSectionEl = document.getElementById('groupNumberSection');
+  const noteEl = document.getElementById('groupNote');
 
   stopBballAnimation();
   stopPhotoStoryAnimation();
   stopPuzzleAnimation();
+  stopFamilyFrameAnimation();
   heroEl.classList.add('hidden');
   photoStoryEl.classList.add('hidden');
   puzzleEl.classList.add('hidden');
+  familyEl.classList.add('hidden');
   contentEl.classList.remove('group-page__content--photostory');
   contentEl.classList.remove('group-page__content--puzzle');
+  numberSectionEl.classList.remove('hidden');
+  noteEl.classList.remove('hidden');
 
   if (group.customHero === 'jersey') {
     document.getElementById('jhsHeroImage').src = group.heroImage;
@@ -1526,6 +1800,15 @@ function openGroupPage(group) {
     contentEl.classList.add('group-page__content--puzzle');
     puzzleEl.classList.remove('hidden');
     renderPuzzleAssembly(group);
+  } else if (group.customHero === 'familyFrame') {
+    photosEl.classList.add('hidden');
+    document.getElementById('familyHeroImage').src = group.heroImage;
+    document.getElementById('familyHeroImage').alt = group.name || '';
+    renderFamilyFrame(group);
+    familyEl.classList.remove('hidden');
+    msgEl.classList.add('hidden');
+    numberSectionEl.classList.add('hidden');
+    noteEl.classList.add('hidden');
   } else {
     photosEl.classList.remove('hidden');
     msgEl.classList.remove('hidden');
@@ -1557,13 +1840,16 @@ function openGroupPage(group) {
   if (group.customHero === 'photoStory') initPhotoStoryAnimation();
   if (group.customHero === 'puzzle') initPuzzleAnimation();
 
-  setTimeout(() => document.getElementById('guestNumberInput').focus({ preventScroll: true }), 300);
+  if (group.customHero !== 'familyFrame') {
+    setTimeout(() => document.getElementById('guestNumberInput').focus({ preventScroll: true }), 300);
+  }
 }
 
 function closeGroupPage() {
   stopBballAnimation();
   stopPhotoStoryAnimation();
   stopPuzzleAnimation();
+  stopFamilyFrameAnimation();
   document.getElementById('groupPage').classList.add('hidden');
   document.body.style.overflow = '';
   document.getElementById('codeInput').value = '';
@@ -1962,6 +2248,11 @@ document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape')    { puzzleAssemblyController.closeLightbox(); return; }
     if (e.key === 'ArrowLeft')  { puzzleAssemblyController.prevLightbox(); return; }
     if (e.key === 'ArrowRight') { puzzleAssemblyController.nextLightbox(); return; }
+  }
+  if (familyDogController && familyDogController.isLightboxOpen()) {
+    if (e.key === 'Escape')    { familyDogController.closeLightbox(); return; }
+    if (e.key === 'ArrowLeft')  { familyDogController.prevLightbox(); return; }
+    if (e.key === 'ArrowRight') { familyDogController.nextLightbox(); return; }
   }
   if (e.key !== 'Escape') return;
   if (!document.getElementById('guestPage').classList.contains('hidden'))   closeGuestPage();

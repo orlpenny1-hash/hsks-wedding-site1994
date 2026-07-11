@@ -1125,6 +1125,10 @@ h1, h2, h3 {
   margin-bottom: 24px;
 }
 
+.group-page__note.hidden {
+  display: none;
+}
+
 .group-page__divider {
   width: 56px;
   height: 1px;
@@ -1191,6 +1195,10 @@ h1, h2, h3 {
 }
 
 .group-page__message.hidden {
+  display: none;
+}
+
+.group-page__number-section.hidden {
   display: none;
 }
 
@@ -1329,8 +1337,6 @@ h1, h2, h3 {
 }
 
 .group-page__content--photostory .group-page__eyebrow,
-.group-page__content--photostory .group-page__name,
-.group-page__content--photostory .group-page__note,
 .group-page__content--photostory .group-page__divider {
   display: none;
 }
@@ -1471,6 +1477,12 @@ h1, h2, h3 {
   grid-row: span 2;
 }
 
+/* 列の高さバランシングで埋めきれない端数だけを吸収する透明フィラー(下端を完全に揃えるため) */
+.photo-story__tile-filler {
+  pointer-events: none;
+  background: transparent;
+}
+
 .photo-story__gallery .photo-story__tile-img {
   transition: transform 0.5s var(--ease-out);
 }
@@ -1484,12 +1496,27 @@ h1, h2, h3 {
 /* スクロール最後: 写真が中央の1枚(集合写真)へ収束するゾーン */
 .photo-story__ending-zone {
   position: relative;
-  min-height: 160vh;
+  min-height: 190vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
+  padding-bottom: 40px;
   text-align: center;
+}
+
+/* 収束ゾーンの直後に続く「スクロール誘導 → 区切り線 → 番号入力ヒント」の余白を
+   高校グループ(フォトストーリー)だけ詰めて、メッセージと入力欄の距離を近づける */
+.group-page__content--photostory .scroll-indicator {
+  margin-bottom: 8px;
+}
+
+.group-page__content--photostory .group-page__separator {
+  margin-bottom: 20px;
+}
+
+.group-page__content--photostory .group-page__hint {
+  margin-bottom: 16px;
 }
 
 .photo-story__ending-anchor {
@@ -1750,6 +1777,78 @@ h1, h2, h3 {
 
 .puzzle-hero__ending-message.hidden {
   display: none;
+}
+
+/* ---- 新郎親族グループ専用: 家族写真クリックで愛犬たちが周りを埋めるモザイク ----
+   CSS Gridで家族写真を中央のセル群に固定配置し、愛犬の写真(最大30枚超)を
+   残りのセルへ自動流し込みする。Grid自体が重なりを起こさない構造なので
+   座標計算による重なりのバグが発生しない(JS: FamilyDogScatterController)。 */
+.family-hero.hidden {
+  display: none;
+}
+
+.family-hero__stage {
+  display: grid;
+  grid-auto-flow: row dense;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.family-hero__main-frame {
+  cursor: pointer;
+}
+
+.family-hero__main {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.family-hero__dog {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  cursor: pointer;
+  opacity: 0;
+}
+
+.family-hero__prompt-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 4px auto 40px;
+  pointer-events: none;
+}
+
+.family-hero__prompt-wrap.hidden {
+  display: none;
+}
+
+.family-hero__pulse-ring {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  border: 1px solid rgba(44, 35, 24, 0.35);
+  margin-bottom: 18px;
+  animation: ps-pulse 2.6s ease-out infinite;
+}
+
+.family-hero__prompt {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: clamp(0.95rem, 2.2vw, 1.3rem);
+  letter-spacing: 0.08em;
+  color: var(--color-text);
+  animation: ps-breathe 2.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .family-hero__pulse-ring,
+  .family-hero__prompt {
+    animation: none;
+  }
 }
 
 .group-page__hint {
@@ -2217,7 +2316,7 @@ h1, h2, h3 {
   }
 
   .photo-story__ending-zone {
-    min-height: 120vh;
+    min-height: 145vh;
   }
 
   .photo-story__ending-anchor {

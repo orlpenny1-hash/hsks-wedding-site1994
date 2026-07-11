@@ -77,6 +77,7 @@ const GROUPS = {
       "images/groupLP/NGNKG/LINE_ALBUM_20250824_260706_3.jpg",
       "images/groupLP/NGNKG/LINE_ALBUM_20250824_260706_4.jpg",
       "images/groupLP/NGNKG/LINE_ALBUM_20250824_260706_5.jpg",
+      "images/groupLP/NGNKG/LINE_ALBUM_20250824_260707_1.jpg",
       "images/groupLP/NGNKG/P1010782_web.jpg",
       "images/groupLP/NGNKG/P1030347_web.jpg",
       "images/groupLP/NGNKG/P1050988_web.jpg",
@@ -154,6 +155,50 @@ const GROUPS = {
       "images/groupLP/NK/A0ECDF97-358C-405E-A01E-45CE3B169A0D.jpg",
     ],
     message: "TODO: 完成後メッセージ未定", // TODO: メッセージ未定
+    guests: {
+      // TODO: ゲスト情報を追加予定
+    }
+  },
+
+  // ---- 新郎親族グループ: 原山家 ----
+  "GROUP_HARAYAMA": {
+    passphrase: "バディ",
+    name: "原山家用ページ",
+    customHero: "familyFrame",
+    heroImage: "images/groupLP/groom親族/家族写真.jpg",
+    photos: [
+      "images/groupLP/groom親族/LINE_ALBUM_20230617_260711_1.jpg",
+      "images/groupLP/groom親族/LINE_ALBUM_20230617_260711_2.jpg",
+      "images/groupLP/groom親族/LINE_ALBUM_20230617_260711_3.jpg",
+      "images/groupLP/groom親族/S__91676676_0.jpg",
+      "images/groupLP/groom親族/S__91676677_0.jpg",
+      "images/groupLP/groom親族/S__91676679_0.jpg",
+      "images/groupLP/groom親族/S__91676680_0.jpg",
+      "images/groupLP/groom親族/S__91676681_0.jpg",
+      "images/groupLP/groom親族/S__91676682_0.jpg",
+      "images/groupLP/groom親族/S__91676683_0.jpg",
+      "images/groupLP/groom親族/S__91676684_0.jpg",
+      "images/groupLP/groom親族/S__91676686_0.jpg",
+      "images/groupLP/groom親族/S__91676687_0.jpg",
+      "images/groupLP/groom親族/S__91676688_0.jpg",
+      "images/groupLP/groom親族/S__91676690_0.jpg",
+      "images/groupLP/groom親族/S__91676691_0.jpg",
+      "images/groupLP/groom親族/S__91676692_0.jpg",
+      "images/groupLP/groom親族/S__91676693_0.jpg",
+      "images/groupLP/groom親族/S__91676694_0.jpg",
+      "images/groupLP/groom親族/S__91676695_0.jpg",
+      "images/groupLP/groom親族/S__91676696_0.jpg",
+      "images/groupLP/groom親族/S__91676697_0.jpg",
+      "images/groupLP/groom親族/S__91676698_0.jpg",
+      "images/groupLP/groom親族/S__91676699_0.jpg",
+      "images/groupLP/groom親族/S__91676701_0.jpg",
+      "images/groupLP/groom親族/S__91676702_0.jpg",
+      "images/groupLP/groom親族/S__91676703_0.jpg",
+      "images/groupLP/groom親族/S__91676704_0.jpg",
+      "images/groupLP/groom親族/S__91676705_0.jpg",
+      "images/groupLP/groom親族/S__91676706_0.jpg",
+      "images/groupLP/groom親族/S__91676707_0.jpg",
+    ],
     guests: {
       // TODO: ゲスト情報を追加予定
     }
