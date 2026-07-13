@@ -1851,6 +1851,85 @@ h1, h2, h3 {
   }
 }
 
+/* ---- 職場グループ専用ヒーロー（今町調剤薬局：建物写真＋じわじわ現れるGIF） ----
+   GIFは開くたびに「うっすら→時間経過ではっきり」を繰り返す必要があるが、
+   専用JSコントローラーは作らずCSSのanimation-delayのみで実現する。
+   #groupPage / #workHero はopenGroupPage()/closeGroupPage()で毎回hidden(display:none)を
+   トグルされるため、再表示のたびにこのアニメーションは自動的に最初からリスタートする
+   （.group-page__name 等が使っているのと同じブラウザ標準挙動）。 */
+.work-hero {
+  margin-bottom: 40px;
+}
+
+.work-hero.hidden {
+  display: none;
+}
+
+.work-hero__building {
+  display: block;
+  width: 100%;
+  height: clamp(180px, 32vw, 320px);
+  object-fit: cover;
+  margin-bottom: 20px;
+  animation: group-fade-up 1.6s var(--ease-out) both;
+}
+
+.work-hero__frame {
+  position: relative;
+  overflow: hidden;
+  border-radius: 4px;
+  animation: group-fade-up 1.6s var(--ease-out) 0.3s both;
+}
+
+.work-hero__gif {
+  display: block;
+  width: 100%;
+  height: auto;
+  opacity: 0.12;
+  animation: work-gif-reveal 7s ease-in 1.8s both;
+}
+
+@keyframes work-gif-reveal {
+  0%   { opacity: 0.12; }
+  100% { opacity: 0.88; }
+}
+
+.work-hero__scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(30, 15, 15, 0.45);
+  z-index: 1;
+}
+
+.work-hero__message {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0 1.6em;
+  font-family: 'Shippori Mincho', var(--font-serif);
+  font-weight: 700;
+  font-size: 1.05rem;
+  line-height: 1.9;
+  text-align: center;
+  color: #f8ecd8;
+  text-shadow: 0 0.06em 0.19em rgba(0, 0, 0, 0.5);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .work-hero__building,
+  .work-hero__frame,
+  .work-hero__gif {
+    animation: none;
+  }
+  .work-hero__gif {
+    opacity: 0.88;
+  }
+}
+
 .group-page__hint {
   font-size: 0.78rem;
   letter-spacing: 0.1em;

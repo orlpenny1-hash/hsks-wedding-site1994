@@ -1762,6 +1762,7 @@ function openGroupPage(group) {
   const photoStoryEl = document.getElementById('photoStoryHero');
   const puzzleEl = document.getElementById('puzzleHero');
   const familyEl = document.getElementById('familyHero');
+  const workEl = document.getElementById('workHero');
   const photosEl = document.getElementById('groupPhotos');
   const msgEl = document.getElementById('groupMessage');
   const contentEl = document.querySelector('.group-page__content');
@@ -1776,6 +1777,7 @@ function openGroupPage(group) {
   photoStoryEl.classList.add('hidden');
   puzzleEl.classList.add('hidden');
   familyEl.classList.add('hidden');
+  workEl.classList.add('hidden');
   contentEl.classList.remove('group-page__content--photostory');
   contentEl.classList.remove('group-page__content--puzzle');
   numberSectionEl.classList.remove('hidden');
@@ -1809,6 +1811,14 @@ function openGroupPage(group) {
     msgEl.classList.add('hidden');
     numberSectionEl.classList.add('hidden');
     noteEl.classList.add('hidden');
+  } else if (group.customHero === 'gifReveal') {
+    document.getElementById('workHeroBuilding').src = group.heroBuilding;
+    document.getElementById('workHeroBuilding').alt = group.name;
+    document.getElementById('workHeroGif').src = group.heroGif;
+    document.getElementById('workHeroMessage').innerHTML = group.message.replace(/\n/g, '<br>');
+    workEl.classList.remove('hidden');
+    photosEl.classList.add('hidden');
+    msgEl.classList.add('hidden');
   } else {
     photosEl.classList.remove('hidden');
     msgEl.classList.remove('hidden');
@@ -1850,6 +1860,7 @@ function closeGroupPage() {
   stopPhotoStoryAnimation();
   stopPuzzleAnimation();
   stopFamilyFrameAnimation();
+  document.getElementById('workHero').classList.add('hidden');
   document.getElementById('groupPage').classList.add('hidden');
   document.body.style.overflow = '';
   document.getElementById('codeInput').value = '';

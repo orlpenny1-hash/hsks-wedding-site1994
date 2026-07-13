@@ -137,13 +137,14 @@ const GROUPS = {
   // ---- 職場グループ ----
   "GROUP_WORK": {
     passphrase: "TAIYOUSUN",
-    name: "", // TODO: 表示名未定
-    photos: [
-      // TODO: 写真追加予定
-    ],
-    message: "", // TODO: メッセージ未定
+    name: "今町用ページ",
+    customHero: "gifReveal",
+    heroBuilding: "images/groupLP/IMMTY/薬局外観.png",
+    heroGif: "images/groupLP/IMMTY/コーラニュース.gif",
+    photos: [],
+    message: "", // TODO: GIF上に載せるメッセージ本文（内輪ジョーク文言）未定
     guests: {
-      // TODO: ゲスト情報を追加予定
+      // TODO: 該当ゲスト1名の情報を追加予定
     }
   },
 
