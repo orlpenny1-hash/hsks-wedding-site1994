@@ -679,7 +679,7 @@ class PhotoStoryController {
     heroImg.alt = group.name || '';
 
     const anchor = document.getElementById('psEndingAnchor');
-    anchor.src = group.heroImage;
+    anchor.src = group.endingImage || group.heroImage;
     anchor.alt = group.name || '';
 
     document.getElementById('psEndingMessage').textContent = group.message || '';
@@ -946,7 +946,7 @@ class PhotoStoryController {
       },
     });
 
-    // 収束先(=heroImageと同じ写真)との相対距離を一度だけ計算する。
+    // 収束先(=endingImage、未指定ならheroImageと同じ写真)との相対距離を一度だけ計算する。
     // 最初のクリック(_playScatter)は順番に散っていくが、戻りは「ランダムな順で吸い寄せられる」
     // 逆再生っぽい雰囲気にするため、収束の着地順だけシャッフルする。
     const order = [...this.tiles];

@@ -62,7 +62,8 @@ const GROUPS = {
     passphrase: "ちょうこうきかい",
     name: "長工イツメンへ！",
     customHero: "photoStory",
-    heroImage: "images/groupLP/NGNKG/LINE_ALBUM_20241207_260706_1.jpg",
+    heroImage: "images/groupLP/NGNKG/P1050988_web.jpg",
+    endingImage: "images/groupLP/NGNKG/LINE_ALBUM_20241207_260706_1.jpg",
     photos: [
       "images/groupLP/NGNKG/IMG_0354_web.jpg",
       "images/groupLP/NGNKG/LINE_ALBUM_20190505_260706_1.jpg",
@@ -78,9 +79,7 @@ const GROUPS = {
       "images/groupLP/NGNKG/LINE_ALBUM_20250824_260706_4.jpg",
       "images/groupLP/NGNKG/LINE_ALBUM_20250824_260706_5.jpg",
       "images/groupLP/NGNKG/LINE_ALBUM_20250824_260707_1.jpg",
-      "images/groupLP/NGNKG/P1010782_web.jpg",
-      "images/groupLP/NGNKG/P1030347_web.jpg",
-      "images/groupLP/NGNKG/P1050988_web.jpg",
+      "images/groupLP/NGNKG/LINE_ALBUM_20250824_260714_1.jpg",
     ],
     message: "みんなと過ごしているときはずっと笑っていて\nどんなに年を重ねても集まれば高校の時の姿に戻れる最高のメンツ！\n\n出会えたことに心から感謝！\n\nこれからもみんなでたくさん笑ってたくさん呑んで行きましょう！！",
     guests: {

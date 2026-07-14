@@ -935,20 +935,7 @@ h1, h2, h3 {
 .section--secret {
   justify-content: center;
   text-align: center;
-}
-
-.secret__bg {
-  position: absolute;
-  inset: 0;
-  background-size: cover;
-  background-position: center;
-  filter: brightness(0.25) saturate(0.4);
-}
-
-.secret__overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(9, 9, 8, 0.72);
+  background: #1c1611;
 }
 
 .secret__content {
@@ -976,7 +963,7 @@ h1, h2, h3 {
 .secret__hint {
   font-size: 0.78rem;
   letter-spacing: 0.1em;
-  color: var(--color-text-muted);
+  color: rgba(250, 246, 240, 0.55);
   margin-bottom: 48px;
 }
 
@@ -991,7 +978,7 @@ h1, h2, h3 {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(201, 169, 110, 0.35);
   border-right: none;
-  color: var(--color-text);
+  color: var(--color-bg);
   font-family: var(--font-sans);
   font-size: 1rem;
   letter-spacing: 0.35em;
@@ -1343,15 +1330,13 @@ h1, h2, h3 {
 
 .photo-story__stage1 {
   position: relative;
-  left: 50%;
-  width: 100vw;
-  margin-left: -50vw;
-  height: 85vh;
-  height: 85dvh;
-  min-height: 420px;
+  width: min(74vh, 88vw, 560px);
+  aspect-ratio: 3 / 4;
+  margin: 0 auto 40px;
   overflow: hidden;
-  margin-bottom: 40px;
   cursor: pointer;
+  border-radius: 4px;
+  box-shadow: 0 20px 50px rgba(44, 35, 24, 0.25);
   background: var(--color-bg);
 }
 
@@ -1359,6 +1344,7 @@ h1, h2, h3 {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: 65% center;
   display: block;
   transition: transform 0.6s var(--ease-out);
 }
@@ -2377,9 +2363,7 @@ h1, h2, h3 {
 
   /* 思い出フォトストーリー: モバイル調整 */
   .photo-story__stage1 {
-    height: 70vh;
-    height: 70dvh;
-    min-height: 340px;
+    width: min(62vh, 86vw, 340px);
   }
 
   .photo-story__tile {
