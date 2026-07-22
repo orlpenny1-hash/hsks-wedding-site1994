@@ -1,4 +1,15 @@
 /* ============================================================
+   Web Fonts
+   ============================================================ */
+@font-face {
+  font-family: 'Charifont';
+  src: url('../font/Charifont.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ============================================================
    CSS Custom Properties
    ============================================================ */
 :root {
@@ -10,6 +21,7 @@
   --color-text-muted:  rgba(44, 35, 24, 0.55);
   --font-serif: 'Cormorant Garamond', Georgia, serif;
   --font-sans:  'Lato', sans-serif;
+  --font-handwriting: 'Charifont', var(--font-serif);
   --ease-out: cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
@@ -2077,9 +2089,10 @@ h1, h2, h3 {
 }
 
 .guest-page__message {
-  font-family: var(--font-serif);
-  font-size: clamp(1rem, 3vw, 1.25rem);
-  line-height: 2.1;
+  font-family: var(--font-handwriting);
+  font-size: clamp(1.05rem, 3.2vw, 1.4rem);
+  line-height: 2.4;
+  letter-spacing: -0.01em;
   color: var(--color-text);
   white-space: pre-wrap;
   margin-bottom: 48px;
@@ -2091,10 +2104,10 @@ h1, h2, h3 {
 }
 
 .guest-page__sign p {
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-size: 1.1rem;
-  letter-spacing: 0.2em;
+  font-family: var(--font-handwriting);
+  font-style: normal;
+  font-size: 1.3rem;
+  letter-spacing: 0em;
   color: var(--color-gold-light);
 }
 
