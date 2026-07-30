@@ -1241,6 +1241,9 @@ class PuzzleAssemblyController {
     const prompt = document.getElementById('puzzleGatherPrompt');
     if (prompt) prompt.classList.add('hidden');
 
+    const title = document.getElementById('puzzleEndingTitle');
+    title.classList.add('hidden');
+
     const msg = document.getElementById('puzzleEndingMessage');
     msg.classList.add('hidden');
     msg.style.opacity = '';
@@ -1453,11 +1456,28 @@ class PuzzleAssemblyController {
     gsap.to(piece.el, { scale: 1.08, duration: 0.12, yoyo: true, repeat: 1, ease: 'power1.inOut' });
   }
 
+  // グループ名とロゴをエンディングタイトルに反映する（ロゴ未指定なら文字だけ表示）
+  _showEndingTitle() {
+    const title = document.getElementById('puzzleEndingTitle');
+    const logo = document.getElementById('puzzleEndingLogo');
+    const titleText = document.getElementById('puzzleEndingTitleText');
+    if (this.group && this.group.logo) {
+      logo.src = this.group.logo;
+      logo.alt = this.group.name || '';
+      logo.classList.remove('hidden');
+    } else {
+      logo.classList.add('hidden');
+    }
+    titleText.textContent = (this.group && this.group.name) || '';
+    title.classList.remove('hidden');
+  }
+
   // 完成の瞬間: 派手な演出は使わず、軽いズームアウトとメッセージのフェードインのみ
   _playCompletion() {
     const mosaic = document.getElementById('puzzleMosaic');
     gsap.fromTo(mosaic, { scale: 1.045 }, { scale: 1, duration: 1.2, ease: 'power2.out' });
 
+    this._showEndingTitle();
     const msg = document.getElementById('puzzleEndingMessage');
     msg.textContent = (this.group && this.group.message) || '';
     msg.classList.remove('hidden');
@@ -1479,6 +1499,7 @@ class PuzzleAssemblyController {
       }
     });
     document.getElementById('puzzleMosaic').style.transform = '';
+    this._showEndingTitle();
     const msg = document.getElementById('puzzleEndingMessage');
     msg.textContent = (this.group && this.group.message) || '';
     msg.classList.remove('hidden');

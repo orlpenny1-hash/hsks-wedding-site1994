@@ -11,16 +11,16 @@ const GROUPS = {
     photos: [
       "images/groomandbride/LINE_ALBUM_202251-5_260615_1.jpg",
     ],
-    message: "本日はお忙しい中\n私たちの結婚披露宴にお越しいただき\n誠にありがとうございます。\n\nいつも温かく見守ってくださる皆様に\n心から感謝しています。\n\nどうぞ最後までお楽しみください。",
+    message: "本日はお忙しい中\n私たちの結婚披露宴にお越しいただき\n誠にありがとうございます\n\nいつも温かく見守ってくださる皆様に\n心から感謝しています\n\nどうぞ最後までお楽しみください",
     guests: {
       "0001": {
         name: "山田 太郎 様",
-        message: "本日はお忙しい中、\n私たちの結婚披露宴にお越しいただき\n誠にありがとうございます。\n\nいつも温かく見守ってくださる太郎さんに\n心から感謝しています。\n\nこれからも変わらずよろしくお願いいたします。",
+        message: "本日はお忙しい中\n私たちの結婚披露宴にお越しいただき\n誠にありがとうございます\n\nいつも温かく見守ってくださる太郎さんに\n心から感謝しています\n\nこれからも変わらずよろしくお願いいたします",
         image: ""
       },
       "0002": {
         name: "山田 花子 様",
-        message: "本日はお越しいただき\nありがとうございます。\n\n花子さんとの思い出は\nいつも私たちの宝物です。",
+        message: "本日はお越しいただき\nありがとうございます\n\n花子さんとの思い出は\nいつも私たちの宝物です",
         image: ""
       }
     }
@@ -34,11 +34,11 @@ const GROUPS = {
       "images/groomandbride/LINE_ALBUM_2023113.4大阪旅行_260615_1.jpg",
       "images/groomandbride/LINE_ALBUM_2023113.4大阪旅行_260615_2.jpg",
     ],
-    message: "本日はお忙しい中\n私たちの結婚披露宴にお越しいただき\nありがとうございます。\n\nいつもそばで支えてくれる皆さんに\n感謝の気持ちでいっぱいです。\n\n今日は思い切り楽しんでください！",
+    message: "本日はお忙しい中\n私たちの結婚披露宴にお越しいただき\nありがとうございます\n\nいつもそばで支えてくれる皆さんに\n感謝の気持ちでいっぱいです\n\n今日は思い切り楽しんでください！",
     guests: {
       "0001": {
         name: "鈴木 次郎 様",
-        message: "これはデモ用のメッセージページです。\n\nSHODAI & SAYAKA より、\n心を込めたメッセージが届きます。",
+        message: "これはデモ用のメッセージページです\n\nSHODAI & SAYAKA より\n心を込めたメッセージが届きます",
         image: ""
       }
     }
@@ -90,8 +90,9 @@ const GROUPS = {
   // ---- 大学グループ ----
   "GROUP_UNIV": {
     passphrase: "NUPALS",
-    name: "TODO: 表示名未定", // TODO: 表示名未定
+    name: "大学のみんなへ",
     customHero: "puzzle",
+    logo: "images/groupLP/NGTYKD/download.png",
     // ファイル名はスマホ表示(4列)でのマソンリー配置セル番号(列A〜D・上から1,2,3...)に対応
     photos: [
       "images/groupLP/NGTYKD/A1.jpg",
@@ -127,7 +128,7 @@ const GROUPS = {
       "images/groupLP/NGTYKD/B7.jpg",
       "images/groupLP/NGTYKD/D1.jpg",
     ],
-    message: "TODO: 完成後メッセージ未定", // TODO: メッセージ未定
+    message: "大学でみんなと出会って授業も遊びも全力で楽しんだ日々は今でも大切な思い出です\n\n何気ない日常もみんなと一緒だったから最高に楽しかった!\n\n卒業してからも変わらず付き合ってくれる仲間がいることが本当にありがたいです\n\nこれからもみんなで集まって飲みに行きましょう!",
     guests: {
       // TODO: ゲスト情報を追加予定
     }
@@ -155,6 +156,20 @@ const GROUPS = {
       "images/groupLP/NK/A0ECDF97-358C-405E-A01E-45CE3B169A0D.jpg",
     ],
     message: "TODO: 完成後メッセージ未定", // TODO: メッセージ未定
+    guests: {
+      // TODO: ゲスト情報を追加予定
+    }
+  },
+
+  // ---- 新婦グループ: 専門学校 ----
+  "GROUP_SENMON": {
+    passphrase: "おおはら",
+    name: "専門学校のみんなへ",
+    photos: [
+      "images/groupLP/OH/S__104169475_0.jpg",
+      "images/groupLP/OH/S__104169476_0.jpg",
+    ],
+    message: "TODO: メッセージ未定", // TODO: メッセージ未定
     guests: {
       // TODO: ゲスト情報を追加予定
     }

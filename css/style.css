@@ -1189,6 +1189,7 @@ h1, h2, h3 {
   line-height: 2.2;
   color: var(--color-text);
   white-space: pre-line;
+  text-align: left;
   margin-bottom: 48px;
   animation: group-fade-up 1.6s var(--ease-out) 0.6s both;
 }
@@ -1534,6 +1535,7 @@ h1, h2, h3 {
   line-height: 2.2;
   color: var(--color-text);
   white-space: pre-line;
+  text-align: left;
   max-width: 460px;
 }
 
@@ -1762,15 +1764,41 @@ h1, h2, h3 {
   }
 }
 
+.puzzle-hero__ending-title {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  max-width: 460px;
+  margin: 32px auto 0;
+  font-family: var(--font-serif);
+  font-size: clamp(1.1rem, 3vw, 1.35rem);
+  color: var(--color-text);
+  letter-spacing: 0.04em;
+}
+
+.puzzle-hero__ending-title.hidden {
+  display: none;
+}
+
+.puzzle-hero__ending-logo {
+  width: 56px;
+  height: auto;
+  flex-shrink: 0;
+}
+
+.puzzle-hero__ending-logo.hidden {
+  display: none;
+}
+
 .puzzle-hero__ending-message {
   font-family: var(--font-serif);
   font-size: clamp(0.95rem, 2.5vw, 1.1rem);
   line-height: 2.2;
   color: var(--color-text);
   white-space: pre-line;
-  text-align: center;
+  text-align: left;
   max-width: 460px;
-  margin: 32px auto 56px;
+  margin: 16px auto 56px;
 }
 
 .puzzle-hero__ending-message.hidden {
@@ -2095,6 +2123,7 @@ h1, h2, h3 {
   letter-spacing: -0.01em;
   color: var(--color-text);
   white-space: pre-wrap;
+  text-align: left;
   margin-bottom: 48px;
 }
 
