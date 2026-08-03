@@ -1892,7 +1892,7 @@ function closeGroupPage() {
 // ---- 番号入力（ステップ2 → ステップ3） ----
 function submitGuestNumber() {
   const input = document.getElementById('guestNumberInput');
-  const num   = input.value.trim();
+  const num   = input.value.trim().toUpperCase();
 
   if (!num) {
     showGroupError('番号を入力してください');
@@ -1938,6 +1938,11 @@ function openGuestPage(guest) {
   }
 
   const page = document.getElementById('guestPage');
+  const content = page.querySelector('.guest-page__content');
+  content.classList.remove('is-revealing');
+  void content.offsetWidth; // reflow: 同じゲストを連続で開いてもアニメーションを再生させる
+  content.classList.add('is-revealing');
+
   page.classList.remove('hidden');
   page.scrollTop = 0;
   document.body.style.overflow = 'hidden';
