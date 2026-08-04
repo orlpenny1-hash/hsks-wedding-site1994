@@ -2,8 +2,8 @@
    Web Fonts
    ============================================================ */
 @font-face {
-  font-family: 'Charifont';
-  src: url('../font/Charifont.otf') format('opentype');
+  font-family: 'Yosugara';
+  src: url('../font/Yosugara.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -21,7 +21,7 @@
   --color-text-muted:  rgba(44, 35, 24, 0.55);
   --font-serif: 'Cormorant Garamond', Georgia, serif;
   --font-sans:  'Lato', sans-serif;
-  --font-handwriting: 'Charifont', var(--font-serif);
+  --font-handwriting: 'Yosugara', var(--font-serif);
   --ease-out: cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
@@ -2093,27 +2093,24 @@ h1, h2, h3 {
 }
 
 .guest-page__name {
-  font-family: var(--font-handwriting);
   font-size: clamp(2rem, 7vw, 3.8rem);
   color: var(--color-text);
   letter-spacing: 0.1em;
   margin-bottom: 48px;
 }
 
-/* ---- 開封演出(name → image → message → sign の順にふわっと表示) ---- */
+/* ---- 開封演出(name → image → message の順にふわっと表示) ---- */
 .guest-page__content .guest-page__eyebrow,
 .guest-page__content .guest-page__name,
 .guest-page__content .guest-page__image-wrap,
-.guest-page__content .guest-page__message,
-.guest-page__content .guest-page__sign {
+.guest-page__content .guest-page__message {
   opacity: 1;
 }
 
 .guest-page__content.is-revealing .guest-page__eyebrow,
 .guest-page__content.is-revealing .guest-page__name,
 .guest-page__content.is-revealing .guest-page__image-wrap,
-.guest-page__content.is-revealing .guest-page__message,
-.guest-page__content.is-revealing .guest-page__sign {
+.guest-page__content.is-revealing .guest-page__message {
   opacity: 0;
   animation: guest-reveal 0.9s var(--ease-out) forwards;
 }
@@ -2122,7 +2119,6 @@ h1, h2, h3 {
 .guest-page__content.is-revealing .guest-page__name       { animation-delay: 0.2s; }
 .guest-page__content.is-revealing .guest-page__image-wrap { animation-delay: 0.4s; }
 .guest-page__content.is-revealing .guest-page__message    { animation-delay: 0.6s; }
-.guest-page__content.is-revealing .guest-page__sign       { animation-delay: 0.85s; }
 
 @keyframes guest-reveal {
   from { opacity: 0; transform: translateY(18px); }
@@ -2155,32 +2151,6 @@ h1, h2, h3 {
   white-space: pre-wrap;
   text-align: left;
   margin-bottom: 48px;
-}
-
-.guest-page__sign {
-  position: relative;
-  border-top: 1px solid rgba(201, 169, 110, 0.18);
-  padding-top: 32px;
-}
-
-.guest-page__sign::before {
-  content: '';
-  position: absolute;
-  top: -5px;
-  left: 50%;
-  width: 9px;
-  height: 9px;
-  background: var(--color-bg);
-  border: 1px solid var(--color-gold);
-  transform: translateX(-50%) rotate(45deg);
-}
-
-.guest-page__sign p {
-  font-family: var(--font-handwriting);
-  font-style: normal;
-  font-size: 1.3rem;
-  letter-spacing: 0em;
-  color: var(--color-gold-light);
 }
 
 /* ============================================================
