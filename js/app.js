@@ -2113,47 +2113,56 @@ const MOVIES = [
   {
     file: 'アイアンマン.jfif',
     title: 'Iron Man',
-    message: 'マーベルにどっぷりハマるきっかけになった一本。\nトニー・スタークのかっこよさに二人そろってやられました。アベンジャーズ全作、一緒に観破りましたよ。',
+    shodaiMessage: 'マーベルにどっぷりハマるきっかけになった一本。\nメカ好きのにはたまらない作品ぜひ見てほしい映画です！',
+    sayakaMessage: 'なんかすごいと思った',
   },
   {
     file: 'キャプテンアメリカ.jfif',
     title: 'Captain America',
-    message: '正直さと誠実さを貫くスティーブ・ロジャースが大好き。\nどんな時代でもブレない生き方。こんなふうでありたいと、二人で話した映画です。',
+    shodaiMessage: 'スティーブロジャースの折れない心に感動\n俳優の彫刻のような筋肉にも驚愕する映画です',
+    sayakaMessage: 'キャラクターのバックボーンも含めて結構好き\nバッキーよりはキャップ派',
   },
   {
     file: 'グリーンマイル.jfif',
     title: 'The Green Mile',
-    message: '何度観ても、最後は必ず泣いてしまう名作。\n誰かを想うことの深さ、命の重さ。観るたびに大切なものを思い出させてくれます。',
+    shodaiMessage: 'ジョン・コーフィの優しさに心打たれる作品\nラストは毎回泣きそうになる最高の映画',
+    sayakaMessage: '何度見ても号泣してしまう傑作\n毎回鼻をすすりながら観ています',
   },
   {
     file: 'スターウォーズ.jfif',
     title: 'Star Wars',
-    message: '壮大な世界観とともに育ってきた作品。\nいつか子どもたちと並んでソファで観るのが夢のひとつです。',
+    shodaiMessage: 'どのナンバリングも面白いと思う！\nダースモールめっちゃ好きでした！',
+    sayakaMessage: 'スターウォーズは見たことないです！\nギリ音楽はわかるかも',
   },
   {
     file: 'ハリーポッター.jfif',
     title: 'Harry Potter',
-    message: '社会人になってから二人でUSJのハリポタエリアへ。\n大人になっても魔法の世界に夢中になれる。そんなふたりでいたいと思っています。',
+    shodaiMessage: '大学になってから全部見ました！\nお気に入りの魔法は”ルーモス・マキシマ”',
+    sayakaMessage: 'セリフを覚えるくらい大好きな作品！\nシリウスブラックが一番好きです！\n皆さんはどのキャラが好きですか？',
   },
   {
     file: 'バックトゥザフューチャー.jfif',
     title: 'Back to the Future',
-    message: '「タイムマシンがあったらどこへ行く？」\nそんな話をするのが好きな会話のひとつ。でも結局、今が一番だと思えます。',
+    shodaiMessage: 'タイムトラベル作品の大傑作！\nドクが個性的で大好きです！\n１．２１ジゴワットとはどれくらいの電力なのか・・・',
+    sayakaMessage: '車が空を飛ぶ時代はいつ来るのかなぁ（笑）',
   },
   {
     file: 'フォレストガンプ.jfif',
     title: 'Forrest Gump',
-    message: 'ふたりで最初に一緒に観た映画。\n"Life is like a box of chocolates." — この言葉みたいに、これからの日々も何が待っているか楽しみです。',
+    shodaiMessage: '"Life is like a box of chocolates." \nこの言葉みたいに、これからの日々も何が待っているか楽しみです。',
+    sayakaMessage: 'くすっと笑えるシーンも感動もあって、\n何度見ても飽きない作品です！\nフォレストがホワイトハウスに招待されるシーンが好きです',
   },
   {
     file: 'ホームアローン.jfif',
     title: 'Home Alone',
-    message: 'クリスマスシーズンになると必ず観たくなる一本。\nあの頃の純粋な笑いが大好き。二人で毎年観ようと決めています。',
+    shodaiMessage: '子供の頃は大笑いしながら見てた作品です\n大人になってから見ると即死レベルのいたずらだらけな気がします（笑）',
+    sayakaMessage: '子供のころから何度も見た作品\n今思うとケビンの家はめちゃくちゃ広いですね（笑）',
   },
   {
     file: '幸せの隠れ場所.jfif',
     title: 'The Blind Side',
-    message: '実話に基づいた、愛の物語。\n誰かのために真剣になれることの強さ、やさしさ。観終わった後、じんわりと温かくなれます。',
+    shodaiMessage: '実話に基づいた、愛の物語。\n誰かのために真剣になれることの強さ、やさしさ。観終わった後、じんわりと温かくなれます。',
+    sayakaMessage: '心が温かくなる作品です\n実話に基づいているというところにも感動しました',
   },
 ];
 
@@ -2200,8 +2209,9 @@ function openMovieModal(movie) {
   const modal = document.getElementById('movieModal');
   document.getElementById('movieModalImg').src    = 'images/movies/' + encodeURIComponent(movie.file);
   document.getElementById('movieModalImg').alt    = movie.title;
-  document.getElementById('movieModalTitle').textContent   = movie.title;
-  document.getElementById('movieModalMessage').textContent = movie.message;
+  document.getElementById('movieModalTitle').textContent          = movie.title;
+  document.getElementById('movieModalMessageShodai').textContent  = movie.shodaiMessage;
+  document.getElementById('movieModalMessageSayaka').textContent  = movie.sayakaMessage;
 
   modal.classList.remove('hidden');
   modal.scrollTop = 0;

@@ -35,6 +35,8 @@
   --color-gold-light:  #a07840;
   --color-text:        #2c2318;
   --color-text-muted:  rgba(44, 35, 24, 0.55);
+  --color-text-inverse:       #faf6f0;
+  --color-text-inverse-muted: rgba(250, 246, 240, 0.65);
   --font-serif: 'Cormorant Garamond', Georgia, serif;
   --font-sans:  'Lato', sans-serif;
   --font-handwriting: 'TekitouPoem', var(--font-serif);
@@ -456,7 +458,7 @@ h1, h2, h3 {
 }
 
 .profile__item dd {
-  color: var(--color-text);
+  color: var(--color-text-inverse);
   line-height: 1.65;
 }
 
@@ -478,7 +480,7 @@ h1, h2, h3 {
   font-family: var(--font-serif);
   font-style: italic;
   font-size: 1.1rem;
-  color: var(--color-text);
+  color: var(--color-text-inverse);
   margin-bottom: 8px;
   line-height: 1.6;
 }
@@ -486,7 +488,7 @@ h1, h2, h3 {
 .profile__quote cite {
   font-size: 0.72rem;
   letter-spacing: 0.15em;
-  color: var(--color-text-muted);
+  color: var(--color-text-inverse-muted);
 }
 
 /* ============================================================
@@ -650,7 +652,7 @@ h1, h2, h3 {
   right: 12px;
   background: rgba(9, 9, 8, 0.7);
   border: 1px solid rgba(201, 169, 110, 0.3);
-  color: var(--color-text-muted);
+  color: var(--color-gold-light);
   font-family: var(--font-sans);
   font-size: 0.62rem;
   letter-spacing: 0.3em;
@@ -2288,12 +2290,19 @@ h1, h2, h3 {
   opacity: 0.5;
 }
 
+.movie-modal__comment + .movie-modal__comment {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(201, 169, 110, 0.2);
+}
+
 .movie-modal__message {
   font-family: var(--font-serif);
   font-size: clamp(0.9rem, 2.5vw, 1.05rem);
   line-height: 2;
-  color: var(--color-text);
-  margin-bottom: 24px;
+  color: var(--color-text-inverse);
+  white-space: pre-line;
+  margin-bottom: 8px;
   text-align: left;
 }
 
@@ -2302,7 +2311,7 @@ h1, h2, h3 {
   font-style: italic;
   font-size: 0.9rem;
   letter-spacing: 0.2em;
-  color: var(--color-gold-light);
+  color: var(--color-gold);
   text-align: right;
 }
 
@@ -2312,7 +2321,7 @@ h1, h2, h3 {
   right: 12px;
   background: rgba(9, 9, 8, 0.7);
   border: 1px solid rgba(201, 169, 110, 0.3);
-  color: var(--color-text-muted);
+  color: var(--color-gold-light);
   font-family: var(--font-sans);
   font-size: 0.62rem;
   letter-spacing: 0.3em;
