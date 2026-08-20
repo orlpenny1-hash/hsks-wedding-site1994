@@ -1776,6 +1776,84 @@ function stopFamilyFrameAnimation() {
 }
 
 // ---- グループページ開閉（ステップ2） ----
+// ---- デフォルト写真レイアウト（customHero未指定グループ用） ----
+// 1枚: メイン表示。2〜3枚: 横並び（従来通り）。4枚以上: Pinterest風の段組みグリッド
+// （列振り分け・上端下端揃えのスケーリングは planPuzzleMasonryLayout() を流用し、
+// パズル演出のアニメーション/ライトボックスは付けない静的表示にする）。
+let defaultGridResizeRaf = null;
+let defaultGridBuildToken = 0;
+
+function stopDefaultPhotoGrid() {
+  defaultGridBuildToken++;
+  if (defaultGridResizeRaf) {
+    cancelAnimationFrame(defaultGridResizeRaf);
+    defaultGridResizeRaf = null;
+  }
+  window.removeEventListener('resize', onDefaultGridResize);
+}
+
+function onDefaultGridResize() {
+  if (defaultGridResizeRaf) cancelAnimationFrame(defaultGridResizeRaf);
+  defaultGridResizeRaf = requestAnimationFrame(() => {
+    if (!currentGroup) return;
+    buildDefaultPhotoGrid(currentGroup);
+  });
+}
+
+// group-page__content内(最大680px)に収まる幅の前提で列数を決める。
+// computeMasonryColumns()はパズル演出用のビューポート全幅ステージ向けにチューニング
+// されているため流用せず、写真枚数が少なめ(数枚〜十数枚程度)のこの用途向けに
+// 控えめな列数(モバイル2列・それ以外3列、写真が少なければさらに絞る)を算出する
+function computeDefaultGridColumns(containerW, photoCount) {
+  const base = containerW < 400 ? 2 : 3;
+  const cap = Math.max(2, Math.ceil(photoCount / 2));
+  return Math.min(base, cap);
+}
+
+async function buildDefaultPhotoGrid(group) {
+  const photosEl = document.getElementById('groupPhotos');
+  const photos = group.photos;
+  const token = ++defaultGridBuildToken;
+
+  const containerW = photosEl.clientWidth || Math.min(window.innerWidth - 48, 632);
+  const gap = 8;
+  const columnCount = computeDefaultGridColumns(containerW, photos.length);
+  const available = containerW - (columnCount - 1) * gap;
+  const columnWidth = Math.max(64, Math.floor(available / columnCount));
+  const placements = await planPuzzleMasonryLayout(photos, columnCount, columnWidth, gap);
+  if (token !== defaultGridBuildToken) return;
+
+  photosEl.innerHTML = '';
+  const columns = Array.from({ length: columnCount }, () => {
+    const col = document.createElement('div');
+    col.className = 'group-page__grid-col';
+    photosEl.appendChild(col);
+    return col;
+  });
+
+  placements
+    .slice()
+    .sort((a, b) => a.y - b.y)
+    .forEach(({ photoIdx, x, height }) => {
+      const colIndex = Math.min(columnCount - 1, Math.round(x / (columnWidth + gap)));
+      const frame = document.createElement('div');
+      frame.className = 'group-page__grid-item';
+      frame.style.height = height + 'px';
+      const img = document.createElement('img');
+      img.src = photos[photoIdx];
+      img.alt = group.name;
+      img.className = 'group-page__grid-img';
+      frame.appendChild(img);
+      columns[colIndex].appendChild(frame);
+    });
+}
+
+function initDefaultPhotoGrid(group) {
+  requestAnimationFrame(() => requestAnimationFrame(() => buildDefaultPhotoGrid(group)));
+  window.removeEventListener('resize', onDefaultGridResize);
+  window.addEventListener('resize', onDefaultGridResize);
+}
+
 function openGroupPage(group) {
   document.getElementById('groupName').textContent = group.name;
 
@@ -1843,18 +1921,36 @@ function openGroupPage(group) {
   } else {
     photosEl.classList.remove('hidden');
     msgEl.classList.remove('hidden');
-
+    photosEl.classList.remove('group-page__photos--hero', 'group-page__photos--grid');
+    stopDefaultPhotoGrid();
     photosEl.innerHTML = '';
-    group.photos.forEach(src => {
+
+    const photos = group.photos || [];
+    if (photos.length === 1) {
+      photosEl.classList.add('group-page__photos--hero');
       const frame = document.createElement('div');
-      frame.className = 'group-page__photo-frame';
+      frame.className = 'group-page__photo-frame group-page__photo-frame--hero';
       const img = document.createElement('img');
-      img.src = src;
+      img.src = photos[0];
       img.alt = group.name;
       img.className = 'group-page__photo';
       frame.appendChild(img);
       photosEl.appendChild(frame);
-    });
+    } else if (photos.length >= 4) {
+      photosEl.classList.add('group-page__photos--grid');
+      // 実際のグリッド構築はページ表示後（コンテナ幅が確定してから）initDefaultPhotoGrid() で行う
+    } else {
+      photos.forEach(src => {
+        const frame = document.createElement('div');
+        frame.className = 'group-page__photo-frame';
+        const img = document.createElement('img');
+        img.src = src;
+        img.alt = group.name;
+        img.className = 'group-page__photo';
+        frame.appendChild(img);
+        photosEl.appendChild(frame);
+      });
+    }
 
     msgEl.textContent = group.message;
   }
@@ -1870,6 +1966,7 @@ function openGroupPage(group) {
   if (group.customHero === 'jersey') initBballAnimation();
   if (group.customHero === 'photoStory') initPhotoStoryAnimation();
   if (group.customHero === 'puzzle') initPuzzleAnimation();
+  if (!group.customHero && group.photos && group.photos.length >= 4) initDefaultPhotoGrid(group);
 
   if (group.customHero !== 'familyFrame') {
     setTimeout(() => document.getElementById('guestNumberInput').focus({ preventScroll: true }), 300);
@@ -1881,6 +1978,7 @@ function closeGroupPage() {
   stopPhotoStoryAnimation();
   stopPuzzleAnimation();
   stopFamilyFrameAnimation();
+  stopDefaultPhotoGrid();
   document.getElementById('workHero').classList.add('hidden');
   document.getElementById('groupPage').classList.add('hidden');
   document.body.style.overflow = '';

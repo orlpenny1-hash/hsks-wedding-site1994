@@ -1182,6 +1182,44 @@ h1, h2, h3 {
   display: block;
 }
 
+/* 写真1枚のグループ: その1枚を大きくメイン表示する */
+.group-page__photo-frame--hero {
+  flex: none;
+  width: 100%;
+  max-width: 560px;
+  height: 380px;
+  border-radius: 4px;
+}
+
+/* 写真4枚以上のグループ: Pinterest風の段組みグリッド（列はJSが幅算出、
+   各写真の高さもJSが列内で上端・下端が揃うようスケーリング済み） */
+.group-page__photos--grid {
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.group-page__grid-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.group-page__grid-item {
+  overflow: hidden;
+  border-radius: 4px;
+  animation: group-fade-up 1.6s var(--ease-out) 0.3s both;
+}
+
+.group-page__grid-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
 @keyframes group-fade-up {
   0% {
     opacity: 0;
@@ -2398,6 +2436,15 @@ h1, h2, h3 {
   /* Group page: モバイル調整 */
   .group-page__photo-frame {
     height: 160px;
+  }
+
+  .group-page__photo-frame--hero {
+    height: 260px;
+  }
+
+  .group-page__photos--grid,
+  .group-page__grid-col {
+    gap: 6px;
   }
 
   .group-page__form {
