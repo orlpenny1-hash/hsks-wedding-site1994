@@ -19,8 +19,6 @@ Static wedding website for SHODAI & SAYAKA (2026.09.13). No build tools or packa
 
 | 定数 / 関数 | 役割 |
 |------------|------|
-| `GROOM_BG_IMAGES` / `BRIDE_BG_IMAGES` | マソンリー背景の画像リスト |
-| `buildGroomMasonry()` / `buildBrideMasonry()` | プロフィールセクションの縦スクロール無限マソンリー背景をDOMで構築 |
 | `fadeObserver` | IntersectionObserver によるスクロールフェードイン (`.fade-in` 要素) |
 | `MOVIES` | 映画データ配列。`file` / `title` / `message` を持つ |
 | `initFilmFrames()` | `MOVIES` をシャッフルして2本のフィルムトラックに振り分けDOMを生成 |
@@ -96,8 +94,8 @@ Static wedding website for SHODAI & SAYAKA (2026.09.13). No build tools or packa
 
 | フォルダ | 用途 |
 |---------|------|
-| `images/GROOMbackg/` | 新郎プロフィールのマソンリー背景（12枚、`GROOM_BG_IMAGES` に列挙） |
-| `images/BRIDEbackg/` | 新婦プロフィールのマソンリー背景（11枚、`BRIDE_BG_IMAGES` に列挙） |
+| `images/GROOMbackg/` | 新郎プロフィールの単一背景画像（`S__93110275_0.jpg`、HTML inline style で参照） |
+| `images/BRIDEbackg/` | 新婦プロフィールの単一背景画像（`S__93110276_0.jpg`、HTML inline style で参照） |
 | `images/movies/` | 映画ポスター（`.jfif` 形式、`MOVIES[].file` で参照） |
 | `images/travels/<フォルダ名>/` | 旅行写真（`TRAVELS[].cover` / `.images[]` で参照） |
 | `images/groomandbride/` | Couple セクション背景・グループページ写真（HTML inline style または `GROUPS[].photos[]` で参照） |
