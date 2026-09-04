@@ -1945,29 +1945,15 @@ h1, h2, h3 {
   100% { opacity: 0.88; }
 }
 
-.work-hero__scrim {
-  position: absolute;
-  inset: 0;
-  background: rgba(30, 15, 15, 0.45);
-  z-index: 1;
-}
-
 .work-hero__message {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0;
+  margin: 20px 0 0;
   padding: 0 1.6em;
   font-family: 'Shippori Mincho', var(--font-serif);
   font-weight: 700;
   font-size: 1.05rem;
   line-height: 1.9;
   text-align: center;
-  color: #f8ecd8;
-  text-shadow: 0 0.06em 0.19em rgba(0, 0, 0, 0.5);
+  color: var(--color-text);
 }
 
 @media (prefers-reduced-motion: reduce) {
