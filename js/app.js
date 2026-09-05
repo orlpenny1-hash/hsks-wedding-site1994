@@ -1658,6 +1658,7 @@ async function buildDefaultPhotoGrid(group) {
       img.src = photos[photoIdx];
       img.alt = group.name;
       img.className = 'group-page__grid-img';
+      img.addEventListener('click', () => openGroupLightbox(photos, photoIdx));
       frame.appendChild(img);
       columns[colIndex].appendChild(frame);
     });
@@ -1668,6 +1669,48 @@ function initDefaultPhotoGrid(group) {
   window.removeEventListener('resize', onDefaultGridResize);
   window.addEventListener('resize', onDefaultGridResize);
 }
+
+// ---- デフォルトグループページの写真ライトボックス ----
+let groupLightboxPhotos = [];
+let groupLightboxIndex = 0;
+
+function openGroupLightbox(photos, index) {
+  groupLightboxPhotos = photos;
+  groupLightboxIndex = index;
+  renderGroupLightbox();
+  document.getElementById('glLightbox').classList.remove('hidden');
+}
+
+function closeGroupLightbox() {
+  document.getElementById('glLightbox').classList.add('hidden');
+}
+
+function isGroupLightboxOpen() {
+  return !document.getElementById('glLightbox').classList.contains('hidden');
+}
+
+function renderGroupLightbox() {
+  const photos = groupLightboxPhotos;
+  document.getElementById('glLightboxImg').src = photos[groupLightboxIndex];
+  document.getElementById('glLightboxCounter').textContent = (groupLightboxIndex + 1) + ' / ' + photos.length;
+}
+
+function prevGroupLightbox() {
+  if (!groupLightboxPhotos.length) return;
+  groupLightboxIndex = (groupLightboxIndex - 1 + groupLightboxPhotos.length) % groupLightboxPhotos.length;
+  renderGroupLightbox();
+}
+
+function nextGroupLightbox() {
+  if (!groupLightboxPhotos.length) return;
+  groupLightboxIndex = (groupLightboxIndex + 1) % groupLightboxPhotos.length;
+  renderGroupLightbox();
+}
+
+document.getElementById('glLightboxClose').addEventListener('click', closeGroupLightbox);
+document.getElementById('glLightboxBackdrop').addEventListener('click', closeGroupLightbox);
+document.getElementById('glLightboxPrev').addEventListener('click', prevGroupLightbox);
+document.getElementById('glLightboxNext').addEventListener('click', nextGroupLightbox);
 
 function openGroupPage(group) {
   document.getElementById('groupName').textContent = group.name;
@@ -1749,25 +1792,35 @@ function openGroupPage(group) {
       img.src = photos[0];
       img.alt = group.name;
       img.className = 'group-page__photo';
+      img.addEventListener('click', () => openGroupLightbox(photos, 0));
       frame.appendChild(img);
       photosEl.appendChild(frame);
     } else if (photos.length >= 4) {
       photosEl.classList.add('group-page__photos--grid');
       // 実際のグリッド構築はページ表示後（コンテナ幅が確定してから）initDefaultPhotoGrid() で行う
     } else {
-      photos.forEach(src => {
+      photos.forEach((src, idx) => {
         const frame = document.createElement('div');
         frame.className = 'group-page__photo-frame';
         const img = document.createElement('img');
         img.src = src;
         img.alt = group.name;
         img.className = 'group-page__photo';
+        img.addEventListener('click', () => openGroupLightbox(photos, idx));
         frame.appendChild(img);
         photosEl.appendChild(frame);
       });
     }
 
     msgEl.textContent = group.message;
+
+    if (group.singleStep) {
+      photosEl.insertAdjacentElement('beforebegin', msgEl); // メッセージを写真より先に表示
+      numberSectionEl.classList.add('hidden');
+      noteEl.classList.add('hidden');
+    } else {
+      photosEl.insertAdjacentElement('afterend', msgEl); // 通常グループは写真→メッセージの順に戻す
+    }
   }
 
   document.getElementById('guestNumberInput').value = '';
@@ -1783,7 +1836,7 @@ function openGroupPage(group) {
   if (group.customHero === 'puzzle') initPuzzleAnimation();
   if (!group.customHero && group.photos && group.photos.length >= 4) initDefaultPhotoGrid(group);
 
-  if (group.customHero !== 'familyFrame') {
+  if (group.customHero !== 'familyFrame' && !group.singleStep) {
     setTimeout(() => document.getElementById('guestNumberInput').focus({ preventScroll: true }), 300);
   }
 }
@@ -1794,6 +1847,7 @@ function closeGroupPage() {
   stopPuzzleAnimation();
   stopFamilyFrameAnimation();
   stopDefaultPhotoGrid();
+  closeGroupLightbox();
   document.getElementById('workHero').classList.add('hidden');
   document.getElementById('groupPage').classList.add('hidden');
   document.body.style.overflow = '';
@@ -2213,6 +2267,11 @@ document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape')    { familyDogController.closeLightbox(); return; }
     if (e.key === 'ArrowLeft')  { familyDogController.prevLightbox(); return; }
     if (e.key === 'ArrowRight') { familyDogController.nextLightbox(); return; }
+  }
+  if (isGroupLightboxOpen()) {
+    if (e.key === 'Escape')    { closeGroupLightbox(); return; }
+    if (e.key === 'ArrowLeft')  { prevGroupLightbox(); return; }
+    if (e.key === 'ArrowRight') { nextGroupLightbox(); return; }
   }
   if (e.key !== 'Escape') return;
   if (!document.getElementById('guestPage').classList.contains('hidden'))   closeGuestPage();

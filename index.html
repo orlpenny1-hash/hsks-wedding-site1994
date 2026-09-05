@@ -215,6 +215,16 @@
       <p class="group-page__note" id="groupNote">ページの一番下に席札の番号入力欄があります</p>
       <div class="group-page__divider"></div>
       <div class="group-page__photos" id="groupPhotos"></div>
+
+      <div class="photo-story__lightbox hidden" id="glLightbox" role="dialog" aria-modal="true" aria-label="写真ビューア">
+        <div class="photo-story__lightbox-backdrop" id="glLightboxBackdrop"></div>
+        <button class="photo-story__lightbox-close" id="glLightboxClose">CLOSE</button>
+        <button class="photo-story__lightbox-nav photo-story__lightbox-nav--prev" id="glLightboxPrev" aria-label="前の写真">‹</button>
+        <img class="photo-story__lightbox-img" id="glLightboxImg" src="" alt="">
+        <button class="photo-story__lightbox-nav photo-story__lightbox-nav--next" id="glLightboxNext" aria-label="次の写真">›</button>
+        <p class="photo-story__lightbox-counter" id="glLightboxCounter"></p>
+      </div>
+
       <div class="jhs-hero hidden" id="jhsHero">
         <div id="bballStage" class="bball-stage" aria-hidden="true"></div>
         <div class="jhs-hero__frame">

@@ -1149,6 +1149,7 @@ h1, h2, h3 {
   object-fit: contain;
   object-position: center;
   display: block;
+  cursor: pointer;
 }
 
 /* 写真1枚のグループ: その1枚を大きくメイン表示する */
@@ -1187,6 +1188,7 @@ h1, h2, h3 {
   object-fit: cover;
   object-position: center;
   display: block;
+  cursor: pointer;
 }
 
 @keyframes group-fade-up {
