@@ -209,7 +209,7 @@ const GROUPS = {
   // ---- 職場グループ: 長岡 ----
   "GROUP_NAGAOKA": {
     passphrase: "ながおか",
-    name: "職場のみなさんへ",
+    name: "みなさんへ",
     photos: [
       "images/groupLP/NG/561.JPG",
     ],
