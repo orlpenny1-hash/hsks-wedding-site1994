@@ -164,7 +164,7 @@ const GROUPS = {
   // ---- 職場グループ ----
   "GROUP_WORK": {
     passphrase: "SUN",
-    name: "今町用ページ",
+    name: "今町ページ",
     customHero: "gifReveal",
     heroBuilding: "images/groupLP/IMMTY/薬局外観.png",
     heroGif: "images/groupLP/IMMTY/コーラニュース.gif",
